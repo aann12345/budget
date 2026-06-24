@@ -355,9 +355,99 @@ input,select{font-family:inherit}
 .emoji-input:focus{border-color:var(--primary)}
 
 @media(max-width:360px){.cat-grid{grid-template-columns:repeat(3,1fr)}.bal-amount{font-size:32px}}
+
+/* PIN SCREEN */
+#pin-screen{position:fixed;inset:0;background:linear-gradient(145deg,#312E81,#4F46E5);z-index:9998;display:none;flex-direction:column;align-items:center;justify-content:center;gap:0}
+#pin-screen.show{display:flex}
+.pin-logo{font-size:52px;margin-bottom:16px}
+.pin-title{font-size:22px;font-weight:800;color:#fff;margin-bottom:6px}
+.pin-sub{font-size:13px;color:rgba(255,255,255,.7);margin-bottom:32px}
+.pin-dots{display:flex;gap:14px;margin-bottom:32px}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.5);transition:all .18s}
+.pin-dot.filled{background:#fff;border-color:#fff}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:240px}
+.pin-key{padding:16px;border-radius:14px;font-size:22px;font-weight:700;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);transition:all .15s;text-align:center}
+.pin-key:active{background:rgba(255,255,255,.25);transform:scale(.95)}
+.pin-err{font-size:13px;color:#F87171;margin-top:12px;min-height:18px}
+.pin-reset{font-size:12px;color:rgba(255,255,255,.55);margin-top:20px;cursor:pointer;text-decoration:underline;background:none;border:none}
+
+/* STREAK BADGE */
+.streak-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#F59E0B,#EF4444);color:#fff;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;margin-bottom:12px;box-shadow:0 2px 10px rgba(239,68,68,.3)}
+
+/* ACCOUNTS BALANCE CARD */
+.acc-bal-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.acc-bal-row:last-child{border:none}
+.acc-bal-ico{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:var(--primary-l)}
+.acc-bal-info{flex:1}
+.acc-bal-name{font-size:13px;font-weight:700;color:var(--t1)}
+.acc-bal-sub{font-size:11px;color:var(--t2)}
+.acc-bal-amount{font-size:15px;font-weight:800;color:var(--t1)}
+
+/* PAYDAY WIDGET */
+.payday-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
+.payday-row:last-child{border:none}
+.payday-lbl{font-size:13px;color:var(--t2);font-weight:500}
+.payday-val{font-size:15px;font-weight:800;color:var(--primary)}
+.payday-days{font-size:32px;font-weight:900;color:var(--primary);text-align:center;line-height:1}
+.payday-days-lbl{font-size:12px;color:var(--t2);text-align:center;margin-top:2px;margin-bottom:12px}
+
+/* RECURRING */
+.rec-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.rec-item:last-child{border:none}
+.rec-ico{width:36px;height:36px;border-radius:10px;background:var(--primary-l);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.rec-info{flex:1;min-width:0}
+.rec-name{font-size:13px;font-weight:700;color:var(--t1)}
+.rec-sub{font-size:11px;color:var(--t2)}
+.rec-right{text-align:right;flex-shrink:0}
+.rec-amt{font-size:14px;font-weight:800;color:var(--t1)}
+.rec-pay-btn{display:block;margin-top:3px;padding:4px 10px;background:var(--primary);color:#fff;border-radius:8px;font-size:11px;font-weight:700}
+.rec-paid{display:block;margin-top:3px;padding:4px 10px;background:var(--green-l);color:var(--green);border-radius:8px;font-size:11px;font-weight:700}
+
+/* TOP SHOPS */
+.shop-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bg)}
+.shop-item:last-child{border:none}
+.shop-rank{font-size:11px;font-weight:800;color:var(--t3);width:18px;flex-shrink:0;text-align:center}
+.shop-name{flex:1;font-size:13px;font-weight:600;color:var(--t1);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shop-cnt{font-size:11px;color:var(--t2);flex-shrink:0}
+.shop-amt{font-size:13px;font-weight:700;color:var(--t1);flex-shrink:0}
+
+/* AMOUNT RANGE SEARCH */
+.amt-range-row{display:flex;gap:8px;margin-bottom:10px}
+.amt-range-input{flex:1;padding:9px 11px;border:2px solid var(--border);border-radius:11px;font-size:14px;color:var(--t1);outline:none;background:var(--surface);transition:border-color .2s}
+.amt-range-input:focus{border-color:var(--primary)}
+
+/* ACHIEVEMENT BADGES */
+.achievements-row{display:flex;gap:8px;overflow-x:auto;padding:4px 0;scrollbar-width:none}
+.achievements-row::-webkit-scrollbar{display:none}
+.ach-badge{flex-shrink:0;padding:7px 12px;background:var(--violet-l);border-radius:12px;font-size:12px;font-weight:700;color:var(--violet);white-space:nowrap;border:1.5px solid transparent}
+.ach-badge.locked{background:var(--bg);color:var(--t3);border-color:var(--border)}
+
+/* DARK MODE extras */
+[data-theme="dark"] #pin-screen{background:linear-gradient(145deg,#1e1b4b,#312E81)}
+[data-theme="dark"] .acc-bal-row{border-color:var(--border)}
+[data-theme="dark"] .rec-item{border-color:var(--border)}
+[data-theme="dark"] .amt-range-input{background:var(--bg);color:var(--t1);border-color:var(--border)}
+[data-theme="dark"] .ach-badge{background:var(--violet-l)}
+[data-theme="dark"] .ach-badge.locked{background:var(--bg);color:var(--t3)}
 </style>
 </head>
 <body>
+
+<!-- PIN SCREEN -->
+<div id="pin-screen">
+  <div class="pin-logo">🔐</div>
+  <div class="pin-title">Семейный бюджет</div>
+  <div class="pin-sub">Введите PIN-код</div>
+  <div class="pin-dots"><div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div><div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div></div>
+  <div class="pin-pad">
+    <button class="pin-key" onclick="pinKey(1)">1</button><button class="pin-key" onclick="pinKey(2)">2</button><button class="pin-key" onclick="pinKey(3)">3</button>
+    <button class="pin-key" onclick="pinKey(4)">4</button><button class="pin-key" onclick="pinKey(5)">5</button><button class="pin-key" onclick="pinKey(6)">6</button>
+    <button class="pin-key" onclick="pinKey(7)">7</button><button class="pin-key" onclick="pinKey(8)">8</button><button class="pin-key" onclick="pinKey(9)">9</button>
+    <button class="pin-key" onclick="pinKey('bio')" style="font-size:18px">👆</button><button class="pin-key" onclick="pinKey(0)">0</button><button class="pin-key" onclick="pinKey('del')">⌫</button>
+  </div>
+  <div class="pin-err" id="pin-err"></div>
+  <button class="pin-reset" onclick="pinForgot()">Забыл PIN</button>
+</div>
 
 <!-- LOADER -->
 <div id="loader"><div class="loader-icon">💰</div><div class="loader-dots"><div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div></div></div>
@@ -420,6 +510,33 @@ input,select{font-family:inherit}
         <button class="mnav-btn" onclick="chMonth(1)">›</button>
       </div>
 
+      <!-- Стрик -->
+      <div id="streak-wrap" style="display:none;text-align:center;margin-bottom:4px"></div>
+
+      <!-- Достижения -->
+      <div class="card" id="achievements-card" style="display:none">
+        <div class="card-h">🏆 Достижения</div>
+        <div class="achievements-row" id="achievements-list"></div>
+      </div>
+
+      <!-- Баланс счетов -->
+      <div class="card" id="acc-bal-card" style="display:none">
+        <div class="card-h">💳 Баланс счетов <span class="card-link" onclick="openAccBalSettings()">Изменить</span></div>
+        <div id="acc-bal-list"></div>
+      </div>
+
+      <!-- До зарплаты -->
+      <div class="card" id="payday-card" style="display:none">
+        <div class="card-h">📅 До зарплаты <span class="card-link" onclick="openPaydaySettings()">Настроить</span></div>
+        <div id="payday-body"></div>
+      </div>
+
+      <!-- Регулярные платежи -->
+      <div class="card" id="recurring-card" style="display:none">
+        <div class="card-h">🔄 Регулярные платежи <span class="card-link" onclick="openRecurringSettings()">+</span></div>
+        <div id="recurring-list"></div>
+      </div>
+
       <div id="budget-alerts"></div>
 
       <!-- Прогноз расходов -->
@@ -471,6 +588,9 @@ input,select{font-family:inherit}
       <div class="card"><div class="card-h">Расходы по категориям</div><div class="chart-wrap"><canvas id="pie-chart"></canvas></div></div>
       <div class="card"><div class="card-h" id="bar-chart-title">Доходы vs Расходы (6 мес.)</div><div class="chart-wrap"><canvas id="bar-chart"></canvas></div></div>
       <div class="card" id="heatmap-card"><div class="card-h">🗓 Расходы по дням</div><div id="heatmap-wrap"></div><div class="hm-legend"><span>Меньше</span><div class="hm-legend-grad"></div><span>Больше</span></div></div>
+      <div class="card"><div class="card-h">📈 График баланса</div><div class="chart-wrap"><canvas id="balance-chart"></canvas></div></div>
+      <div class="card"><div class="card-h">📊 Расходы по дням недели</div><div class="chart-wrap" style="height:180px"><canvas id="weekday-chart"></canvas></div></div>
+      <div class="card"><div class="card-h">🏪 Топ мест трат</div><div id="shops-breakdown"></div></div>
       <div class="card"><div class="card-h">Топ расходов</div><div id="cat-breakdown"></div></div>
       <div class="card" id="members-card" style="display:none"><div class="card-h">👨‍👩‍👧 Кто тратит больше</div><div id="members-breakdown"></div></div>
       <div class="card" id="budget-analytics-card" style="display:none">
@@ -484,12 +604,22 @@ input,select{font-family:inherit}
   <div id="view-history" class="view">
     <div class="content" style="margin-top:0;padding-top:14px">
       <div class="search-wrap"><span class="material-icons-round search-ico">search</span><input class="search-input" id="search-q" type="search" placeholder="Поиск операций…" oninput="renderHistory()"></div>
-      <div class="filter-chips">
+      <div class="amt-range-row">
+        <input class="amt-range-input" id="amt-min" type="number" placeholder="Сумма от ₽" inputmode="decimal" oninput="renderHistory()">
+        <input class="amt-range-input" id="amt-max" type="number" placeholder="до ₽" inputmode="decimal" oninput="renderHistory()">
+      </div>
+      <div class="filter-chips" id="type-filter-chips">
         <button class="chip active" onclick="setFilter('all',this)">Все</button>
         <button class="chip" onclick="setFilter('exp',this)">Расходы</button>
         <button class="chip" onclick="setFilter('inc',this)">Доходы</button>
         <button class="chip" onclick="setFilter('inner',this)">Переводы</button>
         <button class="chip" onclick="setFilter('savings',this)">Копилка</button>
+      </div>
+      <div class="filter-chips" id="acc-filter-chips">
+        <button class="chip active" onclick="setAccFilter('all',this)">Все счета</button>
+        <button class="chip" onclick="setAccFilter('card_a',this)">💳 Карта А</button>
+        <button class="chip" onclick="setAccFilter('card_d',this)">💳 Карта Д</button>
+        <button class="chip" onclick="setAccFilter('cash',this)">💵 Наличные</button>
       </div>
       <div id="history-list"></div>
     </div>
@@ -498,6 +628,34 @@ input,select{font-family:inherit}
   <!-- ── SETTINGS ───────────────────────────────── -->
   <div id="view-settings" class="view">
     <div class="content" style="margin-top:0;padding-top:14px">
+
+      <div class="set-section">
+        <div class="set-section-title">Безопасность</div>
+        <div class="set-item" onclick="openPinSettings()">
+          <div class="set-item-l"><div class="set-ico">🔐</div><div><div class="set-nm">PIN-код</div><div class="set-sub" id="pin-set-sub">Не установлен</div></div></div>
+          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
+        </div>
+      </div>
+
+      <div class="set-section">
+        <div class="set-section-title">Счета и зарплата</div>
+        <div class="set-item" onclick="openAccBalSettings()">
+          <div class="set-item-l"><div class="set-ico">💳</div><div><div class="set-nm">Начальный баланс счетов</div><div class="set-sub">Карта А, Карта Д, Наличные</div></div></div>
+          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
+        </div>
+        <div class="set-item" onclick="openPaydaySettings()">
+          <div class="set-item-l"><div class="set-ico">📅</div><div><div class="set-nm">День зарплаты</div><div class="set-sub" id="payday-set-sub">Не указан</div></div></div>
+          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
+        </div>
+      </div>
+
+      <div class="set-section">
+        <div class="set-section-title">Регулярные платежи</div>
+        <div class="set-item" onclick="openRecurringSettings()">
+          <div class="set-item-l"><div class="set-ico">🔄</div><div><div class="set-nm">Регулярные платежи</div><div class="set-sub" id="recurring-set-sub">Не добавлены</div></div></div>
+          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
+        </div>
+      </div>
 
       <div class="set-section">
         <div class="set-section-title">Внешний вид</div>
@@ -607,10 +765,66 @@ input,select{font-family:inherit}
     </div>
 
     <div class="f-row"><label class="f-label">Дата</label><input id="date-input" type="date" class="f-input"></div>
-    <div class="f-row"><label class="f-label">Комментарий</label><input id="desc-input" type="text" class="f-input" placeholder="Пятёрочка, бензин, аптека…"></div>
+    <div class="f-row"><label class="f-label">Комментарий</label><input id="desc-input" type="text" class="f-input" placeholder="Пятёрочка, бензин, аптека…" list="desc-suggestions" autocomplete="off"></div>
+    <datalist id="desc-suggestions"></datalist>
     <button class="btn-save" onclick="saveTx()">Сохранить</button>
     <button class="btn-del" id="del-btn" onclick="deleteTx()" style="display:none">Удалить операцию</button>
     <button class="btn-cancel" onclick="closeOverlay('add-modal')">Отмена</button>
+  </div>
+</div>
+
+<!-- PIN SETTINGS MODAL -->
+<div id="pin-modal" class="overlay" onclick="bgClose(event,'pin-modal')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🔐 PIN-код</div>
+    <p style="text-align:center;font-size:13px;color:var(--t2);margin-bottom:20px;line-height:1.6">Защитите приложение 4-значным PIN-кодом</p>
+    <div class="f-row"><label class="f-label">Новый PIN (4 цифры)</label><input id="new-pin-input" type="tel" class="f-input" placeholder="••••" maxlength="4" pattern="[0-9]{4}" inputmode="numeric"></div>
+    <div class="f-row"><label class="f-label">Подтвердите PIN</label><input id="new-pin-confirm" type="tel" class="f-input" placeholder="••••" maxlength="4" pattern="[0-9]{4}" inputmode="numeric"></div>
+    <button class="btn-save" onclick="savePinSettings()">Установить PIN</button>
+    <button class="btn-del" id="remove-pin-btn" onclick="removePinSettings()" style="display:none">Удалить PIN</button>
+    <button class="btn-cancel" onclick="closeOverlay('pin-modal')">Отмена</button>
+  </div>
+</div>
+
+<!-- ACCOUNT BALANCES MODAL -->
+<div id="acc-bal-modal" class="overlay" onclick="bgClose(event,'acc-bal-modal')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">💳 Начальный баланс</div>
+    <p style="text-align:center;font-size:13px;color:var(--t2);margin-bottom:20px;line-height:1.6">Укажите начальный баланс счетов. Реальный баланс = начальный ± операции</p>
+    <div class="f-row"><label class="f-label">💳 Карта А (начальный баланс ₽)</label><input id="bal-card-a" type="number" class="f-input" placeholder="0" inputmode="decimal"></div>
+    <div class="f-row"><label class="f-label">💳 Карта Д (начальный баланс ₽)</label><input id="bal-card-d" type="number" class="f-input" placeholder="0" inputmode="decimal"></div>
+    <div class="f-row"><label class="f-label">💵 Наличные (начальный баланс ₽)</label><input id="bal-cash" type="number" class="f-input" placeholder="0" inputmode="decimal"></div>
+    <button class="btn-save" onclick="saveAccBalances()">Сохранить</button>
+    <button class="btn-cancel" onclick="closeOverlay('acc-bal-modal')">Отмена</button>
+  </div>
+</div>
+
+<!-- PAYDAY SETTINGS MODAL -->
+<div id="payday-modal" class="overlay" onclick="bgClose(event,'payday-modal')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">📅 День зарплаты</div>
+    <div class="f-row"><label class="f-label">Число месяца (1–31)</label><input id="payday-input" type="number" class="f-input" placeholder="15" min="1" max="31" inputmode="numeric"></div>
+    <button class="btn-save" onclick="savePaydaySettings()">Сохранить</button>
+    <button class="btn-cancel" onclick="closeOverlay('payday-modal')">Отмена</button>
+  </div>
+</div>
+
+<!-- RECURRING SETTINGS MODAL -->
+<div id="recurring-modal" class="overlay" onclick="bgClose(event,'recurring-modal')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🔄 Регулярные платежи</div>
+    <div id="recurring-settings-list"></div>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+      <div class="f-row"><label class="f-label">Название</label><input id="rec-name-input" type="text" class="f-input" placeholder="Аренда, подписка…"></div>
+      <div class="f-row"><label class="f-label">Сумма (₽)</label><input id="rec-amount-input" type="number" class="f-input" placeholder="5000" inputmode="decimal"></div>
+      <div class="f-row"><label class="f-label">Число месяца (день оплаты)</label><input id="rec-day-input" type="number" class="f-input" placeholder="5" min="1" max="31" inputmode="numeric"></div>
+    </div>
+    <button class="btn-save" onclick="addRecurring()">+ Добавить платёж</button>
+    <button class="btn-cancel" onclick="closeOverlay('recurring-modal')">Закрыть</button>
   </div>
 </div>
 
@@ -730,13 +944,17 @@ function catById(id) { return ALL_CATS.find(c=>c.id===id) || customCategories.fi
 /* ── STATE ───────────────────────────────────────── */
 let me = null, familyId = null, txs = [], unsub = null, settingsUnsub = null;
 let curType = 'exp', selCat = 'food', editId = null, selAccount = 'card_a';
-let filterType = 'all';
+let filterType = 'all', filterAccount = 'all';
 let curMonth = new Date(); curMonth.setDate(1); curMonth.setHours(0,0,0,0);
-let pieInst = null, barInst = null;
+let pieInst = null, barInst = null, lineInst = null, weekdayInst = null;
 let budgets = {};
 let savingsGoal = {name:'', target:0, deadline:''};
 let customCategories = []; // [{id, e, n}]
 let analyticsPeriod = 'month';
+// New features state
+let accountBalances = {card_a: 0, card_d: 0, cash: 0};
+let paydayDay = 0;
+let recurringList = []; // [{id, name, amount, day, category, account}]
 
 /* ── DARK MODE ───────────────────────────────────── */
 (function initDarkMode() {
@@ -864,8 +1082,10 @@ onAuthStateChanged(auth, async user => {
     document.getElementById('usr-email').textContent  = user.email;
     document.getElementById('fam-code').textContent   = familyId;
     updateMonthLabel();
+    updateStreak();
     subscribeTxs();
     subscribeSettings();
+    showPinIfNeeded();
   } else {
     me=null; familyId=null; txs=[];
     if (unsub){unsub();unsub=null;} if (settingsUnsub){settingsUnsub();settingsUnsub=null;}
@@ -894,8 +1114,12 @@ function subscribeSettings() {
       budgets          = d.budgets          || {};
       savingsGoal      = d.savingsGoal      || {name:'',target:0,deadline:''};
       customCategories = d.customCategories || [];
+      accountBalances  = d.accountBalances  || {card_a:0,card_d:0,cash:0};
+      paydayDay        = d.paydayDay        || 0;
+      recurringList    = d.recurringList    || [];
     } else {
       budgets = {}; savingsGoal = {name:'',target:0,deadline:''}; customCategories = [];
+      accountBalances = {card_a:0,card_d:0,cash:0}; paydayDay = 0; recurringList = [];
     }
     renderAll();
   });
@@ -916,12 +1140,19 @@ function renderAll() {
   renderBudgetAlerts(m);
   renderForecast(m);
   renderInsights(m);
+  renderStreakBadge();
+  renderAccBalances();
+  renderPayday(m);
+  renderRecurring(m);
   updateSettingsLabels();
   if (document.getElementById('view-analytics').classList.contains('active')) {
     renderAnalytics(getPeriodTxs());
   }
   if (document.getElementById('custom-cats-modal').classList.contains('open')) {
     renderCustomCatList();
+  }
+  if (document.getElementById('recurring-modal').classList.contains('open')) {
+    renderRecurringSettingsList();
   }
 }
 
@@ -993,8 +1224,16 @@ function renderRecent(m) {
 function renderHistory() {
   const el = document.getElementById('history-list');
   const q  = (document.getElementById('search-q')?.value||'').toLowerCase();
+  const amtMin = parseFloat(document.getElementById('amt-min')?.value)||0;
+  const amtMax = parseFloat(document.getElementById('amt-max')?.value)||Infinity;
   const filtered = txs.filter(t=>{
     if (filterType!=='all' && t.type!==filterType) return false;
+    if (filterAccount!=='all') {
+      const acc = t.account || (t.payMethod==='cash_pay'?'cash':'card_a');
+      if (acc !== filterAccount) return false;
+    }
+    if (amtMin > 0 && t.amount < amtMin) return false;
+    if (amtMax < Infinity && t.amount > amtMax) return false;
     if (q) { const cat=catById(t.category); return ((t.description||'')+(cat.n||'')).toLowerCase().includes(q); }
     return true;
   });
@@ -1280,6 +1519,15 @@ function renderAnalytics(m) {
     }).join('');
   } else { membersCard.style.display = 'none'; }
 
+  // Balance line chart
+  renderBalanceChart(m);
+
+  // Weekday bar chart
+  renderWeekdayChart(m);
+
+  // Top shops
+  renderTopShops(m);
+
   // Budget analytics
   const budgetCard=document.getElementById('budget-analytics-card');
   const hasBudgets=Object.keys(budgets).some(k=>budgets[k]>0);
@@ -1342,6 +1590,74 @@ function renderHeatmap(m) {
   el.innerHTML = html;
 }
 
+/* ── BALANCE LINE CHART ──────────────────────────── */
+function renderBalanceChart(m) {
+  const ctx = document.getElementById('balance-chart');
+  if (!ctx) return;
+  if (lineInst) { lineInst.destroy(); lineInst=null; }
+  // Use full txs sorted by date to compute cumulative balance
+  const sorted = [...txs].sort((a,b)=>toDate(a.date)-toDate(b.date));
+  if (!sorted.length) { noDataCtx(ctx.getContext('2d'),'Нет данных'); return; }
+  let running = 0;
+  const pts = sorted.map(t=>{
+    if (t.type==='inc') running+=t.amount;
+    else if (t.type==='exp') running-=t.amount;
+    return {x:toDate(t.date).toLocaleDateString('ru-RU',{day:'numeric',month:'short'}), y:running};
+  });
+  // Deduplicate by keeping last value per date label
+  const deduped = {};
+  pts.forEach(p=>{deduped[p.x]=p.y;});
+  const labels = Object.keys(deduped);
+  const data   = Object.values(deduped);
+  lineInst = new Chart(ctx.getContext('2d'), {
+    type:'line',
+    data:{labels,datasets:[{label:'Баланс',data,borderColor:'#4F46E5',backgroundColor:'rgba(79,70,229,.08)',fill:true,tension:.35,pointRadius:2,borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmts(c.raw)}}},scales:{y:{ticks:{callback:v=>'₽'+Math.round(v/1000)+'к',font:{family:'Inter',size:10}},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{maxTicksLimit:6,font:{family:'Inter',size:10}},grid:{display:false}}}}
+  });
+}
+
+/* ── WEEKDAY BAR CHART ───────────────────────────── */
+function renderWeekdayChart(m) {
+  const ctx = document.getElementById('weekday-chart');
+  if (!ctx) return;
+  if (weekdayInst) { weekdayInst.destroy(); weekdayInst=null; }
+  const days = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  const totals = [0,0,0,0,0,0,0];
+  m.filter(t=>t.type==='exp').forEach(t=>{
+    let dow = toDate(t.date).getDay(); // 0=Sun
+    dow = dow===0?6:dow-1; // Mon=0
+    totals[dow]+=t.amount;
+  });
+  if (!totals.some(v=>v>0)) { noDataCtx(ctx.getContext('2d'),'Нет расходов'); return; }
+  weekdayInst = new Chart(ctx.getContext('2d'),{
+    type:'bar',
+    data:{labels:days,datasets:[{data:totals,backgroundColor:totals.map(v=>v===Math.max(...totals)?'rgba(79,70,229,.85)':'rgba(79,70,229,.35)'),borderRadius:8,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}}},scales:{y:{ticks:{callback:v=>'₽'+Math.round(v/1000)+'к',font:{family:'Inter',size:10}},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{font:{family:'Inter',size:11}},grid:{display:false}}}}
+  });
+}
+
+/* ── TOP SHOPS ───────────────────────────────────── */
+function renderTopShops(m) {
+  const el = document.getElementById('shops-breakdown');
+  if (!el) return;
+  const byShop = {};
+  m.filter(t=>t.type==='exp' && t.description).forEach(t=>{
+    const key = t.description.trim();
+    if (!byShop[key]) byShop[key]={total:0,count:0};
+    byShop[key].total+=t.amount;
+    byShop[key].count++;
+  });
+  const sorted = Object.entries(byShop).sort((a,b)=>b[1].total-a[1].total).slice(0,10);
+  if (!sorted.length) { el.innerHTML='<p style="text-align:center;color:var(--t2);font-size:13px;padding:16px">Нет данных с комментарием</p>'; return; }
+  el.innerHTML = sorted.map(([name,{total,count}],i)=>`
+    <div class="shop-item">
+      <span class="shop-rank">${i+1}</span>
+      <span class="shop-name">${name}</span>
+      <span class="shop-cnt">${count} раз</span>
+      <span class="shop-amt">${fmt(total)}</span>
+    </div>`).join('');
+}
+
 /* ── NAVIGATION ──────────────────────────────────── */
 window.showView = name => {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -1362,7 +1678,14 @@ function updateMonthLabel() {
 
 window.setFilter = (type,el) => {
   filterType=type;
-  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('#type-filter-chips .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderHistory();
+};
+
+window.setAccFilter = (acc,el) => {
+  filterAccount=acc;
+  document.querySelectorAll('#acc-filter-chips .chip').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
   renderHistory();
 };
@@ -1376,7 +1699,7 @@ window.openAdd = () => {
   document.getElementById('date-input').value=today();
   document.getElementById('del-btn').style.display='none';
   updateTypeUI(); renderCatGrid(); updateAccountUI();
-  renderTemplates();
+  renderTemplates(); updateDescSuggestions();
   openOverlay('add-modal');
   setTimeout(()=>document.getElementById('amt-input').focus(),320);
 };
@@ -1400,7 +1723,19 @@ window.setType = type => {
   selCat=type==='exp'?'food':type==='inc'?'salary':type==='savings'?'piggy':'transfer';
   updateTypeUI(); renderCatGrid();
   renderTemplates();
+  updateDescSuggestions();
 };
+
+function updateDescSuggestions() {
+  const dl = document.getElementById('desc-suggestions');
+  if (!dl) return;
+  const seen = new Set();
+  const opts = txs.filter(t=>t.type===curType && t.description)
+    .map(t=>t.description.trim())
+    .filter(d=>{ if(seen.has(d)) return false; seen.add(d); return true; })
+    .slice(0,20);
+  dl.innerHTML = opts.map(d=>`<option value="${d.replace(/"/g,'&quot;')}">`).join('');
+}
 
 function updateTypeUI() {
   document.querySelectorAll('.type-btn').forEach(b=>{ b.classList.remove('active'); if(b.classList.contains(curType)) b.classList.add('active'); });
@@ -1480,6 +1815,7 @@ window.saveTx = async () => {
     } else {
       data.createdAt = Timestamp.now(); data.createdBy = me.uid;
       await addDoc(collection(db,'families',familyId,'transactions'), data);
+      updateStreak();
       toast('Сохранено ✓');
     }
     closeOverlay('add-modal');
@@ -1598,6 +1934,361 @@ function updateSettingsLabels() {
   document.getElementById('budget-set-sub').textContent    = hasBudgets ? Object.keys(budgets).filter(k=>budgets[k]>0).length+' категорий' : 'Не настроены';
   document.getElementById('savings-set-sub').textContent   = savingsGoal.name ? savingsGoal.name+' — '+fmt(savingsGoal.target) : 'Не настроена';
   document.getElementById('custom-cats-sub').textContent   = customCategories.length ? customCategories.length+' категорий' : 'Не добавлены';
+  const hasPIN = !!localStorage.getItem('pin');
+  const pinSub = document.getElementById('pin-set-sub');
+  if (pinSub) pinSub.textContent = hasPIN ? 'Установлен ✓' : 'Не установлен';
+  const pdSub = document.getElementById('payday-set-sub');
+  if (pdSub) pdSub.textContent = paydayDay ? `${paydayDay}-е число` : 'Не указан';
+  const recSub = document.getElementById('recurring-set-sub');
+  if (recSub) recSub.textContent = recurringList.length ? recurringList.length+' платежей' : 'Не добавлены';
+}
+
+/* ══════════════════════════════════════════════════
+   PIN-КОД
+   ══════════════════════════════════════════════════ */
+let pinBuffer = '';
+
+window.pinKey = key => {
+  const errEl = document.getElementById('pin-err');
+  if (key === 'del') {
+    pinBuffer = pinBuffer.slice(0,-1);
+  } else if (key === 'bio') {
+    // No biometrics in PWA, skip
+    return;
+  } else {
+    if (pinBuffer.length >= 4) return;
+    pinBuffer += String(key);
+  }
+  // Update dots
+  for (let i=0;i<4;i++) {
+    const d = document.getElementById('pd'+i);
+    if (d) d.classList.toggle('filled', i < pinBuffer.length);
+  }
+  if (pinBuffer.length === 4) {
+    const savedPin = localStorage.getItem('pin');
+    if (pinBuffer === savedPin) {
+      document.getElementById('pin-screen').classList.remove('show');
+      pinBuffer = '';
+    } else {
+      if (errEl) { errEl.textContent = 'Неверный PIN'; }
+      setTimeout(()=>{
+        pinBuffer='';
+        for(let i=0;i<4;i++){const d=document.getElementById('pd'+i);if(d)d.classList.remove('filled');}
+        if(errEl)errEl.textContent='';
+      },800);
+    }
+  }
+};
+
+window.pinForgot = () => {
+  if (confirm('Забыли PIN? Это удалит PIN-защиту.')) {
+    localStorage.removeItem('pin');
+    document.getElementById('pin-screen').classList.remove('show');
+    pinBuffer = '';
+    toast('PIN удалён');
+    updateSettingsLabels();
+  }
+};
+
+function showPinIfNeeded() {
+  const pin = localStorage.getItem('pin');
+  if (pin) {
+    pinBuffer = '';
+    for(let i=0;i<4;i++){const d=document.getElementById('pd'+i);if(d)d.classList.remove('filled');}
+    document.getElementById('pin-screen').classList.add('show');
+  }
+}
+
+window.openPinSettings = () => {
+  document.getElementById('new-pin-input').value='';
+  document.getElementById('new-pin-confirm').value='';
+  const hasPIN = !!localStorage.getItem('pin');
+  document.getElementById('remove-pin-btn').style.display = hasPIN?'block':'none';
+  openOverlay('pin-modal');
+};
+
+window.savePinSettings = () => {
+  const p1 = document.getElementById('new-pin-input').value.trim();
+  const p2 = document.getElementById('new-pin-confirm').value.trim();
+  if (!/^\d{4}$/.test(p1)) { toast('PIN должен быть 4 цифры'); return; }
+  if (p1 !== p2) { toast('PIN-коды не совпадают'); return; }
+  localStorage.setItem('pin', p1);
+  toast('PIN установлен ✓');
+  closeOverlay('pin-modal');
+  updateSettingsLabels();
+};
+
+window.removePinSettings = () => {
+  if (!confirm('Удалить PIN-код?')) return;
+  localStorage.removeItem('pin');
+  toast('PIN удалён');
+  closeOverlay('pin-modal');
+  updateSettingsLabels();
+};
+
+/* ══════════════════════════════════════════════════
+   БАЛАНС СЧЕТОВ
+   ══════════════════════════════════════════════════ */
+function calcRealBalance(acc) {
+  const start = accountBalances[acc] || 0;
+  const net = txs.reduce((s,t) => {
+    const tAcc = t.account || (t.payMethod==='cash_pay'?'cash':'card_a');
+    if (tAcc !== acc) return s;
+    if (t.type==='inc') return s + t.amount;
+    if (t.type==='exp') return s - t.amount;
+    return s;
+  }, 0);
+  return start + net;
+}
+
+function renderAccBalances() {
+  const card = document.getElementById('acc-bal-card');
+  const hasAny = accountBalances.card_a||accountBalances.card_d||accountBalances.cash;
+  if (!hasAny) { card.style.display='none'; return; }
+  card.style.display='block';
+  const accs = [
+    {id:'card_a', ico:'💳', name:'Карта А'},
+    {id:'card_d', ico:'💳', name:'Карта Д'},
+    {id:'cash',   ico:'💵', name:'Наличные'},
+  ];
+  document.getElementById('acc-bal-list').innerHTML = accs.map(a=>{
+    const bal = calcRealBalance(a.id);
+    const color = bal>=0?'var(--green)':'var(--red)';
+    return `<div class="acc-bal-row">
+      <div class="acc-bal-ico">${a.ico}</div>
+      <div class="acc-bal-info"><div class="acc-bal-name">${a.name}</div><div class="acc-bal-sub">Реальный баланс</div></div>
+      <div class="acc-bal-amount" style="color:${color}">${fmts(bal)}</div>
+    </div>`;
+  }).join('');
+}
+
+window.openAccBalSettings = () => {
+  document.getElementById('bal-card-a').value = accountBalances.card_a||'';
+  document.getElementById('bal-card-d').value = accountBalances.card_d||'';
+  document.getElementById('bal-cash').value   = accountBalances.cash||'';
+  openOverlay('acc-bal-modal');
+};
+
+window.saveAccBalances = async () => {
+  if (!familyId) { toast('Нет подключения'); return; }
+  const ab = {
+    card_a: parseFloat(document.getElementById('bal-card-a').value)||0,
+    card_d: parseFloat(document.getElementById('bal-card-d').value)||0,
+    cash:   parseFloat(document.getElementById('bal-cash').value)||0,
+  };
+  try {
+    await setDoc(doc(db,'families',familyId,'settings','config'),{accountBalances:ab},{merge:true});
+    toast('Балансы сохранены ✓');
+    closeOverlay('acc-bal-modal');
+  } catch(e) { toast('Ошибка: '+e.message); }
+};
+
+/* ══════════════════════════════════════════════════
+   ДО ЗАРПЛАТЫ
+   ══════════════════════════════════════════════════ */
+function renderPayday(m) {
+  const card = document.getElementById('payday-card');
+  if (!paydayDay) { card.style.display='none'; return; }
+  card.style.display='block';
+  const now = new Date();
+  const thisDay = now.getDate();
+  let daysLeft;
+  if (thisDay < paydayDay) {
+    daysLeft = paydayDay - thisDay;
+  } else {
+    // next month payday
+    const nextPayday = new Date(now.getFullYear(), now.getMonth()+1, paydayDay);
+    daysLeft = Math.round((nextPayday - now) / 864e5);
+  }
+  const inc = m.filter(t=>t.type==='inc').reduce((s,t)=>s+t.amount,0);
+  const exp = m.filter(t=>t.type==='exp').reduce((s,t)=>s+t.amount,0);
+  const remain = inc - exp;
+  const dailyBudget = daysLeft > 0 ? Math.round(remain / daysLeft) : 0;
+  document.getElementById('payday-body').innerHTML = `
+    <div style="text-align:center;padding:8px 0 4px">
+      <div class="payday-days">${daysLeft}</div>
+      <div class="payday-days-lbl">дней до зарплаты</div>
+    </div>
+    <div class="payday-row"><span class="payday-lbl">Остаток этого месяца</span><span class="payday-val" style="color:${remain>=0?'var(--green)':'var(--red)'}">${fmts(remain)}</span></div>
+    <div class="payday-row"><span class="payday-lbl">Можно тратить в день</span><span class="payday-val" style="color:${dailyBudget>=0?'var(--primary)':'var(--red)'}">${fmts(dailyBudget)}</span></div>`;
+}
+
+window.openPaydaySettings = () => {
+  document.getElementById('payday-input').value = paydayDay||'';
+  openOverlay('payday-modal');
+};
+
+window.savePaydaySettings = async () => {
+  if (!familyId) { toast('Нет подключения'); return; }
+  const day = parseInt(document.getElementById('payday-input').value)||0;
+  if (day<1||day>31) { toast('Введите число от 1 до 31'); return; }
+  try {
+    await setDoc(doc(db,'families',familyId,'settings','config'),{paydayDay:day},{merge:true});
+    toast('Сохранено ✓');
+    closeOverlay('payday-modal');
+  } catch(e) { toast('Ошибка: '+e.message); }
+};
+
+/* ══════════════════════════════════════════════════
+   РЕГУЛЯРНЫЕ ПЛАТЕЖИ
+   ══════════════════════════════════════════════════ */
+function renderRecurring(m) {
+  const card = document.getElementById('recurring-card');
+  if (!recurringList.length) { card.style.display='none'; return; }
+  card.style.display='block';
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear  = now.getFullYear();
+  const html = recurringList.map(r=>{
+    const paidThisMonth = m.some(t=>t.recurringId===r.id && toDate(t.date).getMonth()===thisMonth && toDate(t.date).getFullYear()===thisYear);
+    const daysUntil = r.day >= now.getDate() ? r.day - now.getDate() : r.day + (new Date(thisYear, thisMonth+1,0).getDate() - now.getDate());
+    const cat = catById(r.category||'other_e');
+    const sub = paidThisMonth ? '✅ Оплачено в этом месяце' : `📅 ${r.day}-е число · через ${daysUntil} дн.`;
+    return `<div class="rec-item">
+      <div class="rec-ico">${cat.e}</div>
+      <div class="rec-info"><div class="rec-name">${r.name}</div><div class="rec-sub">${sub}</div></div>
+      <div class="rec-right">
+        <div class="rec-amt">${fmt(r.amount)}</div>
+        ${paidThisMonth
+          ? '<span class="rec-paid">Оплачено</span>'
+          : `<button class="rec-pay-btn" onclick="payRecurring('${r.id}')">Оплатить</button>`}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('recurring-list').innerHTML = html;
+}
+
+window.payRecurring = async rid => {
+  const r = recurringList.find(x=>x.id===rid);
+  if (!r||!familyId||!me) return;
+  const data = {
+    type:'exp', amount:r.amount, category:r.category||'other_e',
+    description:r.name, recurringId:rid,
+    date:Timestamp.fromDate(new Date()),
+    createdByName:me.displayName||'Участник',
+    createdAt:Timestamp.now(), createdBy:me.uid,
+    account:r.account||'card_a'
+  };
+  try {
+    await addDoc(collection(db,'families',familyId,'transactions'),data);
+    toast('Платёж «'+r.name+'» проведён ✓');
+  } catch(e) { toast('Ошибка: '+e.message); }
+};
+
+window.openRecurringSettings = () => {
+  renderRecurringSettingsList();
+  document.getElementById('rec-name-input').value='';
+  document.getElementById('rec-amount-input').value='';
+  document.getElementById('rec-day-input').value='';
+  openOverlay('recurring-modal');
+};
+
+function renderRecurringSettingsList() {
+  const el = document.getElementById('recurring-settings-list');
+  if (!el) return;
+  if (!recurringList.length) { el.innerHTML='<p style="text-align:center;color:var(--t2);font-size:13px;padding:12px 0">Нет платежей</p>'; return; }
+  el.innerHTML = recurringList.map(r=>`
+    <div class="custom-cat-item">
+      <span class="custom-cat-emoji-big">${catById(r.category||'other_e').e}</span>
+      <div style="flex:1"><div style="font-size:14px;font-weight:700;color:var(--t1)">${r.name}</div><div style="font-size:11px;color:var(--t2)">${fmt(r.amount)} · ${r.day}-е число</div></div>
+      <button class="btn-del-sm" onclick="deleteRecurring('${r.id}')">Удалить</button>
+    </div>`).join('');
+}
+
+window.addRecurring = async () => {
+  if (!familyId) { toast('Нет подключения'); return; }
+  const name   = document.getElementById('rec-name-input').value.trim();
+  const amount = parseFloat(document.getElementById('rec-amount-input').value)||0;
+  const day    = parseInt(document.getElementById('rec-day-input').value)||0;
+  if (!name) { toast('Введите название'); return; }
+  if (!amount) { toast('Введите сумму'); return; }
+  if (day<1||day>31) { toast('Введите день (1–31)'); return; }
+  const id = 'rec_'+Date.now();
+  const updated = [...recurringList, {id,name,amount,day,category:'other_e',account:'card_a'}];
+  try {
+    await setDoc(doc(db,'families',familyId,'settings','config'),{recurringList:updated},{merge:true});
+    document.getElementById('rec-name-input').value='';
+    document.getElementById('rec-amount-input').value='';
+    document.getElementById('rec-day-input').value='';
+    toast('Добавлено ✓');
+  } catch(e) { toast('Ошибка: '+e.message); }
+};
+
+window.deleteRecurring = async id => {
+  if (!familyId||!confirm('Удалить регулярный платёж?')) return;
+  const updated = recurringList.filter(r=>r.id!==id);
+  try {
+    await setDoc(doc(db,'families',familyId,'settings','config'),{recurringList:updated},{merge:true});
+    toast('Удалено');
+  } catch(e) { toast('Ошибка: '+e.message); }
+};
+
+/* ══════════════════════════════════════════════════
+   СТРИК И ДОСТИЖЕНИЯ
+   ══════════════════════════════════════════════════ */
+function updateStreak() {
+  const todayStr = today();
+  let s = JSON.parse(localStorage.getItem('streak')||'{"lastDate":"","count":0}');
+  if (s.lastDate === todayStr) return; // already recorded today
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+  const yStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth()+1).padStart(2,'0')}-${String(yesterday.getDate()).padStart(2,'0')}`;
+  if (s.lastDate === yStr) {
+    s.count++;
+  } else if (s.lastDate !== todayStr) {
+    s.count = 1;
+  }
+  s.lastDate = todayStr;
+  localStorage.setItem('streak', JSON.stringify(s));
+}
+
+function getStreak() {
+  return JSON.parse(localStorage.getItem('streak')||'{"lastDate":"","count":0}');
+}
+
+function renderStreakBadge() {
+  const el = document.getElementById('streak-wrap');
+  if (!el) return;
+  const s = getStreak();
+  if (s.count >= 2) {
+    el.style.display='block';
+    el.innerHTML = `<div class="streak-badge">🔥 ${s.count} ${pluralDays(s.count)} подряд</div>`;
+  } else {
+    el.style.display='none';
+  }
+  renderAchievements(s.count);
+}
+
+function pluralDays(n) {
+  if (n%10===1&&n%100!==11) return 'день';
+  if ([2,3,4].includes(n%10)&&![12,13,14].includes(n%100)) return 'дня';
+  return 'дней';
+}
+
+const ACHIEVEMENTS = [
+  {id:'first',   e:'🌱', name:'Первый шаг',       desc:'Добавить первую операцию',     check:(streak,txCount)=>txCount>=1},
+  {id:'week',    e:'📅', name:'Неделя подряд',     desc:'7 дней ведёте бюджет',          check:(streak)=>streak>=7},
+  {id:'month',   e:'🏆', name:'Месяц бюджета',     desc:'30 дней без перерыва',          check:(streak)=>streak>=30},
+  {id:'saver',   e:'🐷', name:'Копилочник',         desc:'Первое пополнение копилки',     check:(streak,c,savCount)=>savCount>=1},
+  {id:'hundred', e:'💯', name:'100 операций',       desc:'Добавили 100 записей',          check:(streak,txCount)=>txCount>=100},
+  {id:'family',  e:'👨‍👩‍👧', name:'Семейный бюджет',  desc:'Оба участника добавили данные', check:(s,c,sc,members)=>members>=2},
+];
+
+function renderAchievements(streak) {
+  const card = document.getElementById('achievements-card');
+  const list = document.getElementById('achievements-list');
+  if (!card||!list) return;
+  const txCount = txs.length;
+  const savCount = txs.filter(t=>t.type==='savings').length;
+  const members = new Set(txs.map(t=>t.createdBy).filter(Boolean)).size;
+  const badges = ACHIEVEMENTS.map(a=>{
+    const unlocked = a.check(streak, txCount, savCount, members);
+    if (unlocked) localStorage.setItem('ach_'+a.id,'1');
+    const has = !!localStorage.getItem('ach_'+a.id);
+    return `<div class="ach-badge${has?'':' locked'}" title="${a.desc}">${a.e} ${a.name}</div>`;
+  });
+  list.innerHTML = badges.join('');
+  const anyUnlocked = ACHIEVEMENTS.some(a=>!!localStorage.getItem('ach_'+a.id));
+  card.style.display = anyUnlocked ? 'block' : 'none';
 }
 
 /* ── CUSTOM CATEGORIES ───────────────────────────── */
