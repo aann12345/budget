@@ -62,6 +62,8 @@
 [data-theme="dark"] .hm-cell.empty{background:transparent}
 [data-theme="dark"] .tpl-row{border-color:var(--border)}
 [data-theme="dark"] .tpl-btn{background:var(--bg);border-color:var(--border);color:var(--t2)}
+[data-theme="dark"] .emoji-input{background:var(--bg);color:var(--t1);border-color:var(--border)}
+[data-theme="dark"] .member-bar-bg{background:var(--border)}
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden;transition:background .2s,color .2s}
@@ -331,6 +333,27 @@ input,select{font-family:inherit}
 .chip.active{border-color:var(--primary);background:var(--primary-l);color:var(--primary)}
 .date-grp-hdr{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;padding:12px 0 6px}
 
+/* FAMILY BREAKDOWN */
+.member-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.member-row:last-child{border:none}
+.member-avatar{width:36px;height:36px;border-radius:50%;background:var(--primary-l);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:var(--primary);flex-shrink:0}
+.member-info{flex:1;min-width:0}
+.member-name{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:3px}
+.member-bar-bg{height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
+.member-bar-fill{height:100%;border-radius:3px;transition:width .6s}
+.member-amt{font-size:13px;font-weight:700;color:var(--t1);flex-shrink:0;text-align:right}
+.member-pct{font-size:10px;color:var(--t2);font-weight:500}
+
+/* CUSTOM CATEGORIES */
+.custom-cat-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.custom-cat-item:last-child{border:none}
+.custom-cat-emoji-big{font-size:26px;width:36px;text-align:center;flex-shrink:0}
+.custom-cat-name{flex:1;font-size:14px;font-weight:600;color:var(--t1)}
+.btn-del-sm{padding:6px 12px;background:var(--red-l);color:var(--red);border-radius:8px;font-size:12px;font-weight:700}
+.custom-cat-add-row{display:flex;gap:8px;margin-top:14px;align-items:center}
+.emoji-input{width:60px;padding:11px 8px;border:2px solid var(--border);border-radius:12px;font-size:20px;text-align:center;outline:none;background:var(--surface);color:var(--t1)}
+.emoji-input:focus{border-color:var(--primary)}
+
 @media(max-width:360px){.cat-grid{grid-template-columns:repeat(3,1fr)}.bal-amount{font-size:32px}}
 </style>
 </head>
@@ -449,6 +472,7 @@ input,select{font-family:inherit}
       <div class="card"><div class="card-h" id="bar-chart-title">Доходы vs Расходы (6 мес.)</div><div class="chart-wrap"><canvas id="bar-chart"></canvas></div></div>
       <div class="card" id="heatmap-card"><div class="card-h">🗓 Расходы по дням</div><div id="heatmap-wrap"></div><div class="hm-legend"><span>Меньше</span><div class="hm-legend-grad"></div><span>Больше</span></div></div>
       <div class="card"><div class="card-h">Топ расходов</div><div id="cat-breakdown"></div></div>
+      <div class="card" id="members-card" style="display:none"><div class="card-h">👨‍👩‍👧 Кто тратит больше</div><div id="members-breakdown"></div></div>
       <div class="card" id="budget-analytics-card" style="display:none">
         <div class="card-h">Бюджет месяца <span class="card-link" onclick="openBudgetSettings()">Изменить</span></div>
         <div id="budget-analytics"></div>
@@ -493,6 +517,14 @@ input,select{font-family:inherit}
         </div>
         <div class="set-item" onclick="openJoin()">
           <div class="set-item-l"><div class="set-ico">🔗</div><div><div class="set-nm">Присоединиться к семье</div><div class="set-sub">Ввести код другого участника</div></div></div>
+          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
+        </div>
+      </div>
+
+      <div class="set-section">
+        <div class="set-section-title">Категории</div>
+        <div class="set-item" onclick="openCustomCats()">
+          <div class="set-item-l"><div class="set-ico">🏷️</div><div><div class="set-nm">Мои категории</div><div class="set-sub" id="custom-cats-sub">Не добавлены</div></div></div>
           <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
         </div>
       </div>
@@ -619,6 +651,22 @@ input,select{font-family:inherit}
   </div>
 </div>
 
+<!-- CUSTOM CATEGORIES MODAL -->
+<div id="custom-cats-modal" class="overlay" onclick="bgClose(event,'custom-cats-modal')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🏷️ Мои категории</div>
+    <p style="text-align:center;font-size:13px;color:var(--t2);margin-bottom:16px;line-height:1.6">Добавьте свои категории расходов</p>
+    <div id="custom-cats-list"></div>
+    <div class="custom-cat-add-row">
+      <input id="new-cat-emoji" type="text" class="emoji-input" placeholder="🎭" maxlength="2">
+      <input id="new-cat-name" type="text" class="f-input" placeholder="Название категории" style="flex:1">
+    </div>
+    <button class="btn-save" onclick="addCustomCat()" style="margin-top:12px">+ Добавить</button>
+    <button class="btn-cancel" onclick="closeOverlay('custom-cats-modal')">Закрыть</button>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script type="module">
@@ -677,7 +725,7 @@ const CAT_INNER   = [{id:'transfer', e:'⇄',  n:'Перевод'}];
 const CAT_SAVINGS = [{id:'piggy',    e:'🐷',  n:'Копилка'}];
 const ALL_CATS = [...CAT_EXP, ...CAT_INC, ...CAT_INNER, ...CAT_SAVINGS];
 
-function catById(id) { return ALL_CATS.find(c=>c.id===id) || {e:'📋', n:'Прочее'}; }
+function catById(id) { return ALL_CATS.find(c=>c.id===id) || customCategories.find(c=>c.id===id) || {e:'📋', n:'Прочее'}; }
 
 /* ── STATE ───────────────────────────────────────── */
 let me = null, familyId = null, txs = [], unsub = null, settingsUnsub = null;
@@ -687,6 +735,7 @@ let curMonth = new Date(); curMonth.setDate(1); curMonth.setHours(0,0,0,0);
 let pieInst = null, barInst = null;
 let budgets = {};
 let savingsGoal = {name:'', target:0, deadline:''};
+let customCategories = []; // [{id, e, n}]
 let analyticsPeriod = 'month';
 
 /* ── DARK MODE ───────────────────────────────────── */
@@ -842,10 +891,11 @@ function subscribeSettings() {
   settingsUnsub = onSnapshot(doc(db,'families',familyId,'settings','config'), snap => {
     if (snap.exists()) {
       const d = snap.data();
-      budgets     = d.budgets     || {};
-      savingsGoal = d.savingsGoal || {name:'',target:0,deadline:''};
+      budgets          = d.budgets          || {};
+      savingsGoal      = d.savingsGoal      || {name:'',target:0,deadline:''};
+      customCategories = d.customCategories || [];
     } else {
-      budgets = {}; savingsGoal = {name:'',target:0,deadline:''};
+      budgets = {}; savingsGoal = {name:'',target:0,deadline:''}; customCategories = [];
     }
     renderAll();
   });
@@ -869,6 +919,9 @@ function renderAll() {
   updateSettingsLabels();
   if (document.getElementById('view-analytics').classList.contains('active')) {
     renderAnalytics(getPeriodTxs());
+  }
+  if (document.getElementById('custom-cats-modal').classList.contains('open')) {
+    renderCustomCatList();
   }
 }
 
@@ -1196,6 +1249,37 @@ function renderAnalytics(m) {
     bd.innerHTML=sorted.slice(0,10).map(([id,val])=>{const cat=catById(id);const pct=Math.round(val/maxV*100);return`<div class="bar-cat-item"><span class="bar-cat-emoji">${cat.e}</span><div class="bar-cat-info"><div class="bar-cat-nm">${cat.n}</div><div class="bar-cat-bg"><div class="bar-cat-fill" style="width:${pct}%"></div></div></div><div class="bar-cat-amt">${fmt(val)}</div></div>`;}).join('');
   }
 
+  // Family breakdown
+  const membersCard = document.getElementById('members-card');
+  const byMember = {};
+  m.filter(t=>t.type==='exp' && t.createdByName).forEach(t=>{
+    byMember[t.createdByName] = (byMember[t.createdByName]||0) + t.amount;
+  });
+  const memberEntries = Object.entries(byMember).sort((a,b)=>b[1]-a[1]);
+  if (memberEntries.length > 1) {
+    membersCard.style.display = 'block';
+    const maxMember = memberEntries[0][1];
+    const totalMember = memberEntries.reduce((s,[,v])=>s+v,0);
+    const MCOLORS = ['#4F46E5','#EC4899','#10B981','#F59E0B','#3B82F6','#8B5CF6'];
+    document.getElementById('members-breakdown').innerHTML = memberEntries.map(([name, val], i)=>{
+      const pct = Math.round(val/totalMember*100);
+      const barPct = Math.round(val/maxMember*100);
+      const initials = name.slice(0,2).toUpperCase();
+      const color = MCOLORS[i % MCOLORS.length];
+      return `<div class="member-row">
+        <div class="member-avatar" style="background:${color}22;color:${color}">${initials}</div>
+        <div class="member-info">
+          <div class="member-name">${name}</div>
+          <div class="member-bar-bg"><div class="member-bar-fill" style="width:${barPct}%;background:${color}"></div></div>
+        </div>
+        <div>
+          <div class="member-amt">${fmt(val)}</div>
+          <div class="member-pct" style="text-align:right">${pct}%</div>
+        </div>
+      </div>`;
+    }).join('');
+  } else { membersCard.style.display = 'none'; }
+
   // Budget analytics
   const budgetCard=document.getElementById('budget-analytics-card');
   const hasBudgets=Object.keys(budgets).some(k=>budgets[k]>0);
@@ -1327,8 +1411,9 @@ function updateAccountUI() {
 }
 
 function renderCatGrid() {
-  const cats=curType==='inc'?CAT_INC:curType==='inner'?CAT_INNER:curType==='savings'?CAT_SAVINGS:CAT_EXP;
-  document.getElementById('cat-grid').innerHTML=cats.map(c=>`<button class="cat-btn${c.id===selCat?' sel':''}" onclick="pickCat('${c.id}')"><span class="cat-emoji">${c.e}</span><span class="cat-nm">${c.n}</span></button>`).join('');
+  let cats = curType==='inc' ? CAT_INC : curType==='inner' ? CAT_INNER : curType==='savings' ? CAT_SAVINGS : CAT_EXP;
+  if (curType === 'exp' && customCategories.length) cats = [...cats, ...customCategories];
+  document.getElementById('cat-grid').innerHTML = cats.map(c=>`<button class="cat-btn${c.id===selCat?' sel':''}" onclick="pickCat('${c.id}')"><span class="cat-emoji">${c.e}</span><span class="cat-nm">${c.n}</span></button>`).join('');
 }
 
 /* ── TEMPLATES (last 5 of current type) ──────────── */
@@ -1509,10 +1594,57 @@ window.saveSavingsGoal = async () => {
 };
 
 function updateSettingsLabels() {
-  const hasBudgets=Object.keys(budgets).some(k=>budgets[k]>0);
-  document.getElementById('budget-set-sub').textContent  = hasBudgets ? Object.keys(budgets).filter(k=>budgets[k]>0).length+' категорий' : 'Не настроены';
-  document.getElementById('savings-set-sub').textContent = savingsGoal.name ? savingsGoal.name+' — '+fmt(savingsGoal.target) : 'Не настроена';
+  const hasBudgets = Object.keys(budgets).some(k=>budgets[k]>0);
+  document.getElementById('budget-set-sub').textContent    = hasBudgets ? Object.keys(budgets).filter(k=>budgets[k]>0).length+' категорий' : 'Не настроены';
+  document.getElementById('savings-set-sub').textContent   = savingsGoal.name ? savingsGoal.name+' — '+fmt(savingsGoal.target) : 'Не настроена';
+  document.getElementById('custom-cats-sub').textContent   = customCategories.length ? customCategories.length+' категорий' : 'Не добавлены';
 }
+
+/* ── CUSTOM CATEGORIES ───────────────────────────── */
+window.openCustomCats = () => {
+  renderCustomCatList();
+  document.getElementById('new-cat-emoji').value = '';
+  document.getElementById('new-cat-name').value  = '';
+  openOverlay('custom-cats-modal');
+};
+
+function renderCustomCatList() {
+  const el = document.getElementById('custom-cats-list');
+  if (!customCategories.length) {
+    el.innerHTML = '<p style="text-align:center;color:var(--t2);font-size:13px;padding:12px 0">Пока нет категорий</p>';
+    return;
+  }
+  el.innerHTML = customCategories.map(c => `
+    <div class="custom-cat-item">
+      <span class="custom-cat-emoji-big">${c.e}</span>
+      <span class="custom-cat-name">${c.n}</span>
+      <button class="btn-del-sm" onclick="deleteCustomCat('${c.id}')">Удалить</button>
+    </div>`).join('');
+}
+
+window.addCustomCat = async () => {
+  if (!familyId) { toast('Нет подключения'); return; }
+  const emoji = (document.getElementById('new-cat-emoji').value.trim() || '🏷️');
+  const name  = document.getElementById('new-cat-name').value.trim();
+  if (!name) { toast('Введите название категории'); return; }
+  const id = 'custom_' + Date.now();
+  const updated = [...customCategories, {id, e: emoji, n: name}];
+  try {
+    await setDoc(doc(db,'families',familyId,'settings','config'), {customCategories: updated}, {merge:true});
+    document.getElementById('new-cat-emoji').value = '';
+    document.getElementById('new-cat-name').value  = '';
+    toast('Категория добавлена ✓');
+  } catch(e) { console.error(e); toast('Ошибка: '+(e.message||e.code)); }
+};
+
+window.deleteCustomCat = async id => {
+  if (!familyId || !confirm('Удалить категорию?')) return;
+  const updated = customCategories.filter(c => c.id !== id);
+  try {
+    await setDoc(doc(db,'families',familyId,'settings','config'), {customCategories: updated}, {merge:true});
+    toast('Удалено');
+  } catch(e) { console.error(e); toast('Ошибка: '+(e.message||e.code)); }
+};
 
 /* ── EXPORT ──────────────────────────────────────── */
 window.exportAll   = () => dlCSV(txs,'budget_all.csv');
