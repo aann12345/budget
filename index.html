@@ -594,8 +594,11 @@ window.doReg = async () => {
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
     await updateProfile(cred.user, {displayName:name});
+    // Создаём документы сразу, до того как onAuthStateChanged может прочитать
     await setDoc(doc(db,'users',cred.user.uid), {name,email,familyId:cred.user.uid,createdAt:Timestamp.now()});
     await setDoc(doc(db,'families',cred.user.uid), {createdBy:cred.user.uid,createdAt:Timestamp.now()});
+    // Обновляем имя в шапке, так как onAuthStateChanged мог сработать раньше
+    document.getElementById('hdr-family').textContent = name + ' и семья';
   } catch(e) { authErr(e.code); }
 };
 
@@ -896,7 +899,7 @@ window.openEdit = id => {
   document.getElementById('modal-title').textContent='Редактировать';
   document.getElementById('amt-input').value=t.amount;
   document.getElementById('desc-input').value=t.description||'';
-  document.getElementById('date-input').value=toDate(t.date).toISOString().split('T')[0];
+  const _ed=toDate(t.date); document.getElementById('date-input').value=`${_ed.getFullYear()}-${String(_ed.getMonth()+1).padStart(2,'0')}-${String(_ed.getDate()).padStart(2,'0')}`;
   document.getElementById('del-btn').style.display='block';
   updateTypeUI(); renderCatGrid(); updatePayUI();
   openOverlay('add-modal');
@@ -922,7 +925,7 @@ function updatePayUI() {
 
 function renderCatGrid() {
   const cats=curType==='inc'?CAT_INC:curType==='inner'?CAT_INNER:curType==='savings'?CAT_SAVINGS:CAT_EXP;
-  document.getElementById('cat-grid').innerHTML=cats.map(c=>`<button class="cat-btn${c.id===selCat?' sel':''}" onclick="pickCat('${c.id}')""><span class="cat-emoji">${c.e}</span><span class="cat-nm">${c.n}</span></button>`).join('');
+  document.getElementById('cat-grid').innerHTML=cats.map(c=>`<button class="cat-btn${c.id===selCat?' sel':''}" onclick="pickCat('${c.id}')"><span class="cat-emoji">${c.e}</span><span class="cat-nm">${c.n}</span></button>`).join('');
 }
 
 window.pickCat = id => { selCat=id; renderCatGrid(); };
@@ -930,8 +933,12 @@ window.pickCat = id => { selCat=id; renderCatGrid(); };
 window.setPayMethod = method => { payMethod=method; updatePayUI(); };
 
 window.saveTx = async () => {
-  const raw=parseFloat(document.getElementById('amt-input').value);
-  if (!raw || raw<=0) { toast('Введите сумму'); return; }
+  const amtEl = document.getElementById('amt-input');
+  if (!amtEl) { toast('Ошибка интерфейса, перезагрузите страницу'); return; }
+  const raw = parseFloat(amtEl.value);
+  if (!raw || raw <= 0) { toast('Введите сумму'); return; }
+  if (!familyId) { toast('Данные ещё загружаются, подождите'); return; }
+  if (!me) { toast('Необходима авторизация'); return; }
 
   // Предупреждение о крупном переводе помощи
   if (curType==='exp' && selCat==='help' && raw>=10000) {
@@ -940,28 +947,36 @@ window.saveTx = async () => {
     if (!confirm(`⚠️ Перевод помощи на ${fmt(raw)}.\nВсего помощи за месяц: ${fmt(total)}.\n\nПродолжить?`)) return;
   }
 
-  const dateStr=document.getElementById('date-input').value;
-  const date=dateStr ? Timestamp.fromDate(new Date(dateStr+'T12:00:00')) : Timestamp.now();
-  const data={type:curType,amount:raw,category:selCat,description:document.getElementById('desc-input').value.trim(),date,createdByName:me?.displayName||'Участник'};
+  const dateStr = document.getElementById('date-input').value;
+  let date;
+  if (dateStr) {
+    const parts = dateStr.split('-').map(Number);
+    date = Timestamp.fromDate(new Date(parts[0], parts[1]-1, parts[2], 12, 0, 0));
+  } else {
+    date = Timestamp.now();
+  }
+  const descEl = document.getElementById('desc-input');
+  const data = {type:curType, amount:raw, category:selCat, description:(descEl?descEl.value.trim():''), date, createdByName:me.displayName||'Участник'};
   if (curType==='exp') data.payMethod = payMethod;
 
   try {
     if (editId) {
-      await updateDoc(doc(db,'families',familyId,'transactions',editId),data);
+      await updateDoc(doc(db,'families',familyId,'transactions',editId), data);
       toast('Обновлено ✓');
     } else {
-      data.createdAt=Timestamp.now(); data.createdBy=me?.uid||'';
-      await addDoc(collection(db,'families',familyId,'transactions'),data);
+      data.createdAt = Timestamp.now(); data.createdBy = me.uid;
+      await addDoc(collection(db,'families',familyId,'transactions'), data);
       toast('Сохранено ✓');
     }
     closeOverlay('add-modal');
-  } catch(e) { console.error(e); toast('Ошибка: '+e.message); }
+  } catch(e) { console.error(e); toast('Ошибка сохранения: '+(e.message||e.code||e)); }
 };
 
 window.deleteTx = async () => {
   if (!editId||!confirm('Удалить операцию?')) return;
+  if (!familyId) { toast('Ошибка: нет данных семьи'); return; }
   try { await deleteDoc(doc(db,'families',familyId,'transactions',editId)); toast('Удалено'); closeOverlay('add-modal'); }
-  catch(e) { toast('Ошибка удаления'); }
+  catch(e) { console.error(e); toast('Ошибка удаления: '+(e.message||e.code)); }
 };
 
 /* ── SAVINGS ADD ─────────────────────────────────── */
@@ -999,13 +1014,22 @@ window.joinFamily = async () => {
 
 window.copyCode = () => {
   const code=familyId||'';
-  if (navigator.clipboard) { navigator.clipboard.writeText(code).then(()=>toast('Код скопирован!')).catch(()=>fallbackCopy(code)); }
-  else { fallbackCopy(code); }
+  if (!code) { toast('Код не найден'); return; }
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(code).then(()=>toast('Код скопирован! ✓')).catch(()=>fallbackCopy(code));
+  } else { fallbackCopy(code); }
 };
 function fallbackCopy(text) {
-  const el=Object.assign(document.createElement('textarea'),{value:text});
-  document.body.appendChild(el); el.select(); document.execCommand('copy');
-  document.body.removeChild(el); toast('Код скопирован!');
+  const el = document.createElement('input');
+  el.value = text;
+  el.setAttribute('readonly','');
+  el.style.cssText = 'position:fixed;top:0;left:0;width:2px;height:2px;opacity:0;';
+  document.body.appendChild(el);
+  el.focus();
+  el.setSelectionRange(0, text.length);
+  try { document.execCommand('copy'); toast('Код скопирован! ✓'); }
+  catch(e) { prompt('Скопируйте код вручную:', text); }
+  document.body.removeChild(el);
 }
 
 /* ── BUDGET SETTINGS ─────────────────────────────── */
@@ -1020,13 +1044,14 @@ window.openBudgetSettings = () => {
 };
 
 window.saveBudgets = async () => {
+  if (!familyId) { toast('Ошибка: нет данных семьи'); return; }
   const newBudgets={};
-  CAT_EXP.forEach(cat=>{ const v=parseFloat(document.getElementById('blimit-'+cat.id)?.value); if(v>0) newBudgets[cat.id]=v; });
+  CAT_EXP.forEach(cat=>{ const el=document.getElementById('blimit-'+cat.id); const v=el?parseFloat(el.value):NaN; if(v>0) newBudgets[cat.id]=v; });
   try {
     await setDoc(doc(db,'families',familyId,'settings','config'),{budgets:newBudgets,savingsGoal},{merge:true});
     toast('Лимиты сохранены ✓');
     closeOverlay('budget-modal');
-  } catch(e) { toast('Ошибка: '+e.message); }
+  } catch(e) { console.error(e); toast('Ошибка: '+(e.message||e.code)); }
 };
 
 /* ── SAVINGS SETTINGS ────────────────────────────── */
@@ -1037,14 +1062,17 @@ window.openSavingsSettings = () => {
 };
 
 window.saveSavingsGoal = async () => {
-  const name  = document.getElementById('savings-name-input').value.trim();
-  const target= parseFloat(document.getElementById('savings-target-input').value)||0;
+  if (!familyId) { toast('Ошибка: нет данных семьи'); return; }
+  const nameEl = document.getElementById('savings-name-input');
+  const targetEl = document.getElementById('savings-target-input');
+  const name = nameEl ? nameEl.value.trim() : '';
+  const target = targetEl ? (parseFloat(targetEl.value)||0) : 0;
   if (!name) { toast('Введите название цели'); return; }
   try {
     await setDoc(doc(db,'families',familyId,'settings','config'),{budgets,savingsGoal:{name,target}},{merge:true});
     toast('Копилка сохранена ✓');
     closeOverlay('savings-modal');
-  } catch(e) { toast('Ошибка: '+e.message); }
+  } catch(e) { console.error(e); toast('Ошибка: '+(e.message||e.code)); }
 };
 
 function updateSettingsLabels() {
@@ -1072,9 +1100,15 @@ function dlCSV(list,name) {
     return[d,typ,cat,t.amount,pay,t.description||'',t.createdByName||''].map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',');
   });
   const csv='﻿'+[hdr.join(','),...rows].join('\n');
-  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-  const a=Object.assign(document.createElement('a'),{href:url,download:name});
-  a.click(); URL.revokeObjectURL(url); toast('Файл скачан');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  // iOS Safari не поддерживает download attribute — открываем в новой вкладке
+  const a=document.createElement('a');
+  a.href=url; a.download=name; a.target='_blank';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); },300);
+  toast('Файл открыт — сохраните через «Поделиться»');
 }
 
 /* ── MISC ────────────────────────────────────────── */
