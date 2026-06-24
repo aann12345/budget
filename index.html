@@ -273,6 +273,9 @@ input,select{font-family:inherit}
       <div class="field-wrap"><label class="field-label">Email</label><input id="l-email" type="email" class="field" placeholder="you@mail.com" autocomplete="email"></div>
       <div class="field-wrap"><label class="field-label">Пароль</label><input id="l-pass" type="password" class="field" placeholder="••••••••" autocomplete="current-password"></div>
       <button class="btn-p" onclick="doLogin()">Войти</button>
+      <div style="text-align:center;margin-top:14px">
+        <button onclick="doReset()" style="background:none;border:none;color:var(--primary);font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline">Забыл пароль</button>
+      </div>
     </div>
     <div id="reg-form" style="display:none">
       <div class="field-wrap"><label class="field-label">Ваше имя</label><input id="r-name" type="text" class="field" placeholder="Ананда"></div>
@@ -508,7 +511,7 @@ import { initializeApp }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  signOut, onAuthStateChanged, updateProfile
+  signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import {
   getFirestore, collection, doc, addDoc, setDoc, getDoc,
@@ -588,6 +591,16 @@ window.doLogin = async () => {
   catch(e) { authErr(e.code); }
 };
 
+window.doReset = async () => {
+  const email = fv('l-email').trim();
+  if (!email) { authErr('','Введите email выше, затем нажмите «Забыл пароль»'); return; }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    const el=document.getElementById('auth-err');
+    el.style.color='var(--green)'; el.textContent='Письмо отправлено! Проверьте почту.'; el.style.display='block';
+  } catch(e) { authErr(e.code); }
+};
+
 window.doReg = async () => {
   const name=fv('r-name').trim(), email=fv('r-email').trim(), pass=fv('r-pass');
   if (!name) { authErr('','Введите имя'); return; }
@@ -621,11 +634,20 @@ onAuthStateChanged(auth, async user => {
     document.getElementById('auth').style.display = 'none';
     document.getElementById('app').style.display  = 'block';
 
-    const udoc = await getDoc(doc(db,'users',user.uid));
-    familyId = udoc.exists() ? udoc.data().familyId : user.uid;
-    if (!udoc.exists()) {
-      await setDoc(doc(db,'users',user.uid),{name:user.displayName||'Участник',email:user.email,familyId:user.uid,createdAt:Timestamp.now()});
-      await setDoc(doc(db,'families',user.uid),{createdBy:user.uid,createdAt:Timestamp.now()});
+    try {
+      const udoc = await getDoc(doc(db,'users',user.uid));
+      if (udoc.exists()) {
+        familyId = udoc.data().familyId || user.uid;
+      } else {
+        familyId = user.uid;
+        await setDoc(doc(db,'users',user.uid),{name:user.displayName||'Участник',email:user.email,familyId:user.uid,createdAt:Timestamp.now()});
+        await setDoc(doc(db,'families',user.uid),{createdBy:user.uid,createdAt:Timestamp.now()});
+      }
+    } catch(e) {
+      console.error('Ошибка загрузки профиля:', e);
+      // Фолбэк: используем uid напрямую
+      familyId = user.uid;
+      toast('Проблема с подключением. Работаем в автономном режиме.');
     }
 
     setGreeting();
