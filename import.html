@@ -55,7 +55,7 @@ table.map-table select:focus{outline:none;border-color:#4F46E5}
 <p class="sub">Загрузите xlsx-файлы из Дзен-мани (или другого приложения). Данные добавятся в вашу семью в Firebase.</p>
 
 <!-- STEP 1: FILES -->
-<div class="card" id="step1">
+<div class="card" id="step1" style="display:none">
   <h2>1. Выберите файлы</h2>
   <div class="file-row">
     <span class="file-label">💰 Доходы Ананды</span>
@@ -85,6 +85,16 @@ table.map-table select:focus{outline:none;border-color:#4F46E5}
     <button class="btn btn-primary" onclick="parseFiles()">Прочитать файлы →</button>
   </div>
   <div id="parse-status" class="status-bar"></div>
+</div>
+
+<!-- LOGIN CARD (shown when not authenticated) -->
+<div class="card" id="login-card" style="display:none;max-width:400px">
+  <h2>🔑 Войдите в аккаунт</h2>
+  <p style="font-size:13px;color:#64748B;margin-bottom:16px">Войдите тем же аккаунтом что и в приложении</p>
+  <div style="margin-bottom:10px"><input id="li-email" type="email" class="file-input" placeholder="Email" style="width:100%;border:2px solid #E2E8F0;border-radius:10px;padding:10px 12px;font-size:14px;background:#fff"></div>
+  <div style="margin-bottom:14px"><input id="li-pass" type="password" class="file-input" placeholder="Пароль" style="width:100%;border:2px solid #E2E8F0;border-radius:10px;padding:10px 12px;font-size:14px;background:#fff"></div>
+  <button class="btn btn-primary" onclick="doLogin()" style="width:100%">Войти →</button>
+  <div id="login-err" style="color:#DC2626;font-size:13px;margin-top:8px;display:none"></div>
 </div>
 
 <!-- STEP 2: MAPPING -->
@@ -130,7 +140,7 @@ const FB = {
   appId:             "1:550046477555:web:1b588525a5176e650f9b86"
 };
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, addDoc, getDoc, doc, Timestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const app  = initializeApp(FB);
@@ -141,15 +151,32 @@ let familyId = null;
 
 onAuthStateChanged(auth, async user => {
   if (user) {
+    document.getElementById('login-card').style.display = 'none';
+    document.getElementById('step1').style.display = 'block';
     try {
       const udoc = await getDoc(doc(db,'users',user.uid));
       familyId = udoc.exists() ? (udoc.data().familyId || user.uid) : user.uid;
       setStatus('parse-status','ok',`✅ Вы вошли как ${user.email} · семья: ${familyId.slice(0,8)}…`);
     } catch(e) { familyId = user.uid; }
   } else {
-    setStatus('parse-status','err','❌ Войдите в приложение, затем откройте эту страницу.');
+    document.getElementById('login-card').style.display = 'block';
+    document.getElementById('step1').style.display = 'none';
+    setStatus('parse-status','','');
   }
 });
+
+window.doLogin = async () => {
+  const email = document.getElementById('li-email').value.trim();
+  const pass  = document.getElementById('li-pass').value;
+  const errEl = document.getElementById('login-err');
+  errEl.style.display = 'none';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    errEl.textContent = e.code === 'auth/invalid-credential' ? 'Неверный email или пароль' : ('Ошибка: ' + e.code);
+    errEl.style.display = 'block';
+  }
+};
 
 /* ── CATEGORY MAPPING ─────────────────────────────── */
 const CAT_MAP = {
