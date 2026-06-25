@@ -245,24 +245,35 @@ function step(n) {
   [1,2,3].forEach(i => document.getElementById('step'+i).style.display = i===n?'block':'none');
 }
 
+const RU_MONTHS = {
+  'янв':0,'фев':1,'мар':2,'апр':3,'май':4,'мая':4,'июн':5,
+  'июл':6,'авг':7,'сен':8,'окт':9,'ноя':10,'дек':11
+};
+
 function parseExcelDate(v) {
   if (!v) return null;
-  if (v instanceof Date) return v;
+  if (v instanceof Date) return isNaN(v) ? null : v;
   if (typeof v === 'number') {
-    // Excel serial date
     const d = new Date(Math.round((v - 25569) * 864e5));
     if (!isNaN(d)) return d;
   }
   if (typeof v === 'string') {
-    // Common Russian format: dd.mm.yyyy or dd/mm/yyyy
-    const m = v.match(/^(\d{1,2})[.\-\/](\d{1,2})[.\-\/](\d{2,4})$/);
-    if (m) {
-      const y = m[3].length===2 ? 2000+parseInt(m[3]) : parseInt(m[3]);
-      return new Date(y, parseInt(m[2])-1, parseInt(m[1]));
+    const s = v.trim();
+    // "07 янв. 2026, 10:01" or "07 янв. 2026 10:01" or "7 янв 2026"
+    const ruM = s.match(/^(\d{1,2})\s+([а-яё]{3})\.?\s+(\d{4})/i);
+    if (ruM) {
+      const mon = RU_MONTHS[ruM[2].toLowerCase()];
+      if (mon !== undefined) return new Date(parseInt(ruM[3]), mon, parseInt(ruM[1]));
     }
-    // ISO
-    const d = new Date(v);
-    if (!isNaN(d)) return d;
+    // dd.mm.yyyy or dd/mm/yyyy
+    const dm = s.match(/^(\d{1,2})[.\-\/](\d{1,2})[.\-\/](\d{2,4})/);
+    if (dm) {
+      const y = dm[3].length===2 ? 2000+parseInt(dm[3]) : parseInt(dm[3]);
+      return new Date(y, parseInt(dm[2])-1, parseInt(dm[1]));
+    }
+    // ISO yyyy-mm-dd
+    const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (iso) return new Date(parseInt(iso[1]), parseInt(iso[2])-1, parseInt(iso[3]));
   }
   return null;
 }
@@ -357,9 +368,21 @@ window.buildPreview = () => {
     const isInc = s.txType === 'inc';
 
     s.rows.forEach((row, ri) => {
-      const rawAmt = cAmt >= 0 ? row[cAmt] : null;
-      const amount = parseFloat(String(rawAmt||'').replace(/\s/g,'').replace(',','.'));
-      if (!amount || amount <= 0) { skipped.push(`${s.owner} строка ${ri+2}: сумма "${rawAmt}"`); return; }
+      let rawAmt = cAmt >= 0 ? row[cAmt] : null;
+      let amount = parseFloat(String(rawAmt||'').replace(/\s/g,'').replace(',','.'));
+      // Fallback: if amount is 0 or NaN, try other «Сумма» columns
+      if ((!amount || isNaN(amount)) && s.headers) {
+        for (let ci = 0; ci < s.headers.length; ci++) {
+          if (ci === cAmt) continue;
+          const hdr = String(s.headers[ci]||'').toLowerCase();
+          if (hdr.includes('сумма') || hdr.includes('сум')) {
+            const alt = parseFloat(String(row[ci]||'').replace(/\s/g,'').replace(',','.'));
+            if (alt && !isNaN(alt) && Math.abs(alt) > 0) { rawAmt = row[ci]; amount = alt; break; }
+          }
+        }
+      }
+      amount = Math.abs(amount); // bank statements use negative for expenses
+      if (!amount || isNaN(amount)) { skipped.push(`${s.owner} строка ${ri+2}: сумма "${rawAmt}"`); return; }
 
       const rawDate = cDate >= 0 ? row[cDate] : null;
       const date = parseExcelDate(rawDate);
