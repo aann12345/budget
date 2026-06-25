@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Импорт данных — Семейный бюджет</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Inter',sans-serif;background:#F8FAFF;color:#0F172A;padding:24px}
+h1{font-size:22px;font-weight:800;margin-bottom:6px;color:#4F46E5}
+.sub{font-size:13px;color:#64748B;margin-bottom:28px}
+.card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 16px rgba(79,70,229,.08);margin-bottom:20px}
+.card h2{font-size:15px;font-weight:700;margin-bottom:14px;color:#0F172A}
+.file-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.file-label{font-size:13px;font-weight:600;width:160px;flex-shrink:0;color:#334155}
+.file-input{flex:1;min-width:200px;padding:8px 12px;border:2px dashed #CBD5E1;border-radius:10px;font-size:13px;background:#F8FAFF;cursor:pointer}
+.file-input:hover{border-color:#4F46E5}
+.owner-select{padding:8px 10px;border:2px solid #E2E8F0;border-radius:9px;font-size:13px;background:#fff;color:#0F172A;cursor:pointer}
+.owner-select:focus{outline:none;border-color:#4F46E5}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge.inc{background:#DCFCE7;color:#16A34A}
+.badge.exp{background:#FEE2E2;color:#DC2626}
+.btn{padding:12px 24px;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .18s}
+.btn-primary{background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;box-shadow:0 4px 14px rgba(79,70,229,.3)}
+.btn-primary:hover{opacity:.9}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-secondary{background:#F1F5F9;color:#64748B;border:2px solid #E2E8F0}
+.btn-secondary:hover{background:#E2E8F0}
+.preview-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+.preview-table th{background:#F1F5F9;padding:8px 10px;text-align:left;font-weight:700;color:#64748B;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+.preview-table td{padding:7px 10px;border-bottom:1px solid #F1F5F9}
+.preview-table tr:hover td{background:#FAFAFE}
+.status-bar{padding:12px 16px;border-radius:11px;font-size:13px;font-weight:600;margin-top:12px;display:none}
+.status-bar.ok{background:#DCFCE7;color:#15803D;display:block}
+.status-bar.err{background:#FEE2E2;color:#B91C1C;display:block}
+.status-bar.info{background:#EEF2FF;color:#4338CA;display:block}
+.progress{height:6px;background:#E2E8F0;border-radius:3px;margin-top:8px;overflow:hidden;display:none}
+.progress-fill{height:100%;background:linear-gradient(90deg,#4F46E5,#7C3AED);border-radius:3px;transition:width .3s;width:0%}
+.stats-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+.stat-box{flex:1;min-width:100px;background:#F8FAFF;border-radius:10px;padding:10px 14px;text-align:center}
+.stat-box .val{font-size:20px;font-weight:800;color:#4F46E5}
+.stat-box .lbl{font-size:11px;color:#64748B;margin-top:2px}
+.warn-box{background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;padding:12px;font-size:12px;color:#78350F;margin-top:10px;line-height:1.6}
+.raw-cols{font-size:11px;color:#94A3B8;margin-top:6px;font-family:monospace;word-break:break-all}
+table.map-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+table.map-table td{padding:6px 8px;border-bottom:1px solid #F1F5F9}
+table.map-table select{padding:5px 8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:12px;background:#fff;cursor:pointer}
+table.map-table select:focus{outline:none;border-color:#4F46E5}
+</style>
+</head>
+<body>
+
+<h1>📥 Импорт данных в Семейный бюджет</h1>
+<p class="sub">Загрузите xlsx-файлы из Дзен-мани (или другого приложения). Данные добавятся в вашу семью в Firebase.</p>
+
+<!-- STEP 1: FILES -->
+<div class="card" id="step1">
+  <h2>1. Выберите файлы</h2>
+  <div class="file-row">
+    <span class="file-label">💰 Доходы Ананды</span>
+    <input type="file" class="file-input" accept=".xlsx,.xls,.csv" id="f-inc-a">
+    <select class="owner-select" id="o-inc-a"><option value="Ананда">Ананда</option><option value="Дарима">Дарима</option></select>
+    <span class="badge inc">Доходы</span>
+  </div>
+  <div class="file-row">
+    <span class="file-label">💰 Доходы Даримы</span>
+    <input type="file" class="file-input" accept=".xlsx,.xls,.csv" id="f-inc-d">
+    <select class="owner-select" id="o-inc-d"><option value="Дарима">Дарима</option><option value="Ананда">Ананда</option></select>
+    <span class="badge inc">Доходы</span>
+  </div>
+  <div class="file-row">
+    <span class="file-label">💸 Расходы Ананды</span>
+    <input type="file" class="file-input" accept=".xlsx,.xls,.csv" id="f-exp-a">
+    <select class="owner-select" id="o-exp-a"><option value="Ананда">Ананда</option><option value="Дарима">Дарима</option></select>
+    <span class="badge exp">Расходы</span>
+  </div>
+  <div class="file-row">
+    <span class="file-label">💸 Расходы Даримы</span>
+    <input type="file" class="file-input" accept=".xlsx,.xls,.csv" id="f-exp-d">
+    <select class="owner-select" id="o-exp-d"><option value="Дарима">Дарима</option><option value="Ананда">Ананда</option></select>
+    <span class="badge exp">Расходы</span>
+  </div>
+  <div style="margin-top:14px">
+    <button class="btn btn-primary" onclick="parseFiles()">Прочитать файлы →</button>
+  </div>
+  <div id="parse-status" class="status-bar"></div>
+</div>
+
+<!-- STEP 2: MAPPING -->
+<div class="card" id="step2" style="display:none">
+  <h2>2. Сопоставление колонок</h2>
+  <p style="font-size:13px;color:#64748B;margin-bottom:12px">Проверьте, правильно ли определены колонки. Обнаруженные заголовки:</p>
+  <div id="col-map"></div>
+  <div style="margin-top:16px;display:flex;gap:10px">
+    <button class="btn btn-primary" onclick="buildPreview()">Предпросмотр →</button>
+    <button class="btn btn-secondary" onclick="step(1)">← Назад</button>
+  </div>
+</div>
+
+<!-- STEP 3: PREVIEW -->
+<div class="card" id="step3" style="display:none">
+  <h2>3. Предпросмотр данных</h2>
+  <div id="preview-stats" class="stats-row"></div>
+  <div id="preview-warn" class="warn-box" style="display:none"></div>
+  <div style="overflow-x:auto">
+    <table class="preview-table" id="preview-table">
+      <thead><tr><th>Дата</th><th>Тип</th><th>Категория</th><th>Сумма</th><th>Комментарий</th><th>Кто</th><th>Счёт</th></tr></thead>
+      <tbody id="preview-body"></tbody>
+    </table>
+  </div>
+  <p id="preview-more" style="font-size:12px;color:#94A3B8;margin-top:8px"></p>
+  <div style="margin-top:16px;display:flex;gap:10px">
+    <button class="btn btn-primary" id="import-btn" onclick="doImport()">🚀 Импортировать в Firebase</button>
+    <button class="btn btn-secondary" onclick="step(1)">← Сначала</button>
+  </div>
+  <div id="import-status" class="status-bar"></div>
+  <div class="progress" id="import-progress"><div class="progress-fill" id="progress-fill"></div></div>
+</div>
+
+<script type="module">
+
+/* ── FIREBASE ─────────────────────────────────────── */
+const FB = {
+  apiKey:            "AIzaSyBglJ-_SThCVTkEqy4iJTStWcD0IEBq8xo",
+  authDomain:        "family-budget-2a2b2.firebaseapp.com",
+  projectId:         "family-budget-2a2b2",
+  storageBucket:     "family-budget-2a2b2.firebasestorage.app",
+  messagingSenderId: "550046477555",
+  appId:             "1:550046477555:web:1b588525a5176e650f9b86"
+};
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, addDoc, getDoc, doc, Timestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const app  = initializeApp(FB);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let familyId = null;
+
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    try {
+      const udoc = await getDoc(doc(db,'users',user.uid));
+      familyId = udoc.exists() ? (udoc.data().familyId || user.uid) : user.uid;
+      setStatus('parse-status','ok',`✅ Вы вошли как ${user.email} · семья: ${familyId.slice(0,8)}…`);
+    } catch(e) { familyId = user.uid; }
+  } else {
+    setStatus('parse-status','err','❌ Войдите в приложение, затем откройте эту страницу.');
+  }
+});
+
+/* ── CATEGORY MAPPING ─────────────────────────────── */
+const CAT_MAP = {
+  // расходы
+  'жильё':     'housing', 'жкх':       'housing', 'ипотека':   'housing', 'аренда':   'housing', 'квартира': 'housing',
+  'продукты':  'food',    'супермаркет':'food',    'пятёрочка': 'food',    'магнит':   'food',    'перекрёсток':'food',
+  'кафе':      'cafe',    'ресторан':  'cafe',     'фастфуд':   'cafe',    'доставка': 'cafe',
+  'транспорт': 'transport','такси':    'transport','бензин':    'transport','метро':    'transport','автобус':  'transport',
+  'маркетплейс':'mp',     'wildberries':'mp',      'wb':        'mp',      'ozon':     'mp',       'озон':     'mp',
+  'медицина':  'health',  'аптека':    'health',   'врач':      'health',  'больница':  'health',
+  'дети':      'kids',    'ребёнок':   'kids',     'садик':     'kids',    'школа':    'kids',
+  'красота':   'beauty',  'косметика': 'beauty',   'парикмахер':'beauty',  'маникюр':  'beauty',
+  'одежда':    'clothes', 'обувь':     'clothes',
+  'помощь':    'help',    'перевод':   'help',
+  'наличные':  'cash',
+  // доходы
+  'зарплата':  'salary',  'аванс':     'salary',   'оклад':     'salary',
+  'социальн':  'social',  'пособие':   'social',   'льгота':    'social',
+  'декрет':    'maternity','материнский':'maternity',
+  'родители':  'family',  'родственник':'family',
+  'возврат':   'return',  'кешбэк':    'return',
+};
+
+function guessCategory(text, isInc) {
+  if (!text) return isInc ? 'other_i' : 'other_e';
+  const low = String(text).toLowerCase();
+  for (const [kw, cat] of Object.entries(CAT_MAP)) {
+    if (low.includes(kw)) return cat;
+  }
+  return isInc ? 'other_i' : 'other_e';
+}
+
+/* ── COLUMN DETECTION ─────────────────────────────── */
+const DATE_KEYS   = ['дата','date','день','число'];
+const AMOUNT_KEYS = ['сумма','amount','sum','итого','стоимость','руб'];
+const DESC_KEYS   = ['комментарий','описание','категория','статья','наименование','назначение','comment','note','description'];
+const ACC_KEYS    = ['счёт','счет','кошелёк','кошелек','карта','account'];
+
+function detectCol(headers, keys) {
+  for (const k of keys) {
+    const idx = headers.findIndex(h => h && String(h).toLowerCase().includes(k));
+    if (idx >= 0) return idx;
+  }
+  return -1;
+}
+
+/* ── STATE ─────────────────────────────────────────── */
+const FILES = [
+  {id:'f-inc-a', oid:'o-inc-a', txType:'inc'},
+  {id:'f-inc-d', oid:'o-inc-d', txType:'inc'},
+  {id:'f-exp-a', oid:'o-exp-a', txType:'exp'},
+  {id:'f-exp-d', oid:'o-exp-d', txType:'exp'},
+];
+
+let parsedSheets = []; // [{owner, txType, headers, rows, colDate, colAmt, colDesc, colAcc}]
+let allTxs = [];       // final mapped transactions
+
+/* ── HELPERS ─────────────────────────────────────── */
+function setStatus(id, cls, msg) {
+  const el = document.getElementById(id);
+  el.className = 'status-bar ' + cls;
+  el.textContent = msg;
+}
+
+function step(n) {
+  [1,2,3].forEach(i => document.getElementById('step'+i).style.display = i===n?'block':'none');
+}
+
+function parseExcelDate(v) {
+  if (!v) return null;
+  if (v instanceof Date) return v;
+  if (typeof v === 'number') {
+    // Excel serial date
+    const d = new Date(Math.round((v - 25569) * 864e5));
+    if (!isNaN(d)) return d;
+  }
+  if (typeof v === 'string') {
+    // Common Russian format: dd.mm.yyyy or dd/mm/yyyy
+    const m = v.match(/^(\d{1,2})[.\-\/](\d{1,2})[.\-\/](\d{2,4})$/);
+    if (m) {
+      const y = m[3].length===2 ? 2000+parseInt(m[3]) : parseInt(m[3]);
+      return new Date(y, parseInt(m[2])-1, parseInt(m[1]));
+    }
+    // ISO
+    const d = new Date(v);
+    if (!isNaN(d)) return d;
+  }
+  return null;
+}
+
+function readFile(file) {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const wb = XLSX.read(e.target.result, {type:'array', cellDates:true});
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(ws, {header:1, raw:false, dateNF:'DD.MM.YYYY'});
+        res(data);
+      } catch(err) { rej(err); }
+    };
+    reader.onerror = rej;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+/* ── PARSE FILES ─────────────────────────────────── */
+window.parseFiles = async () => {
+  parsedSheets = [];
+  let loaded = 0;
+  for (const fDef of FILES) {
+    const inp = document.getElementById(fDef.id);
+    if (!inp.files[0]) continue;
+    const owner = document.getElementById(fDef.oid).value;
+    try {
+      const rows = await readFile(inp.files[0]);
+      if (!rows.length) continue;
+      // Find header row (first non-empty)
+      let hdrIdx = 0;
+      for (let i=0; i<Math.min(5,rows.length); i++) {
+        if (rows[i] && rows[i].some(c=>c)) { hdrIdx=i; break; }
+      }
+      const headers = rows[hdrIdx].map(h=>String(h||'').trim());
+      const dataRows = rows.slice(hdrIdx+1).filter(r=>r.some(c=>c!==null&&c!==undefined&&c!==''));
+      const colDate = detectCol(headers, DATE_KEYS);
+      const colAmt  = detectCol(headers, AMOUNT_KEYS);
+      const colDesc = detectCol(headers, DESC_KEYS);
+      const colAcc  = detectCol(headers, ACC_KEYS);
+      parsedSheets.push({owner, txType:fDef.txType, headers, rows:dataRows, colDate, colAmt, colDesc, colAcc, fileName:inp.files[0].name});
+      loaded++;
+    } catch(e) {
+      setStatus('parse-status','err','❌ Ошибка чтения: '+e.message);
+      return;
+    }
+  }
+  if (!loaded) { setStatus('parse-status','err','❌ Выберите хотя бы один файл'); return; }
+  buildColMapping();
+  step(2);
+};
+
+/* ── COL MAPPING UI ──────────────────────────────── */
+function buildColMapping() {
+  const el = document.getElementById('col-map');
+  let html = '<table class="map-table"><thead><tr><th>Файл</th><th>Тип</th><th>Дата</th><th>Сумма</th><th>Описание</th><th>Счёт</th></tr></thead><tbody>';
+  parsedSheets.forEach((s,i) => {
+    const opts = h => s.headers.map((c,j)=>`<option value="${j}" ${''/* selected below */}>${j}: ${c||'(пусто)'}</option>`).join('');
+    const sel = (field, idx) => {
+      const sel = `<select id="map-${i}-${field}">` +
+        `<option value="-1">(не выбрано)</option>` +
+        s.headers.map((c,j)=>`<option value="${j}" ${j===idx?'selected':''}>${j}: ${c||'(пусто)'}</option>`).join('') +
+        `</select>`;
+      return sel;
+    };
+    html += `<tr>
+      <td style="font-size:11px;color:#64748B">${s.fileName}<br><b>${s.owner}</b></td>
+      <td><span class="badge ${s.txType}">${s.txType==='inc'?'Доходы':'Расходы'}</span></td>
+      <td>${sel('date',s.colDate)}</td>
+      <td>${sel('amt',s.colAmt)}</td>
+      <td>${sel('desc',s.colDesc)}</td>
+      <td>${sel('acc',s.colAcc)}</td>
+    </tr>`;
+    html += `<tr><td colspan="6" class="raw-cols">Заголовки: ${s.headers.join(' | ')}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+/* ── BUILD PREVIEW ──────────────────────────────── */
+window.buildPreview = () => {
+  allTxs = [];
+  const skipped = [];
+
+  parsedSheets.forEach((s, i) => {
+    const cDate = parseInt(document.getElementById(`map-${i}-date`)?.value ?? s.colDate);
+    const cAmt  = parseInt(document.getElementById(`map-${i}-amt`)?.value  ?? s.colAmt);
+    const cDesc = parseInt(document.getElementById(`map-${i}-desc`)?.value ?? s.colDesc);
+    const cAcc  = parseInt(document.getElementById(`map-${i}-acc`)?.value  ?? s.colAcc);
+    const isInc = s.txType === 'inc';
+
+    s.rows.forEach((row, ri) => {
+      const rawAmt = cAmt >= 0 ? row[cAmt] : null;
+      const amount = parseFloat(String(rawAmt||'').replace(/\s/g,'').replace(',','.'));
+      if (!amount || amount <= 0) { skipped.push(`${s.owner} строка ${ri+2}: сумма "${rawAmt}"`); return; }
+
+      const rawDate = cDate >= 0 ? row[cDate] : null;
+      const date = parseExcelDate(rawDate);
+      if (!date) { skipped.push(`${s.owner} строка ${ri+2}: дата "${rawDate}"`); return; }
+
+      // Only 2026 data (from beginning of year)
+      if (date.getFullYear() < 2024) { skipped.push(`${s.owner} строка ${ri+2}: слишком старая дата ${date.toLocaleDateString('ru-RU')}`); return; }
+
+      const rawDesc = cDesc >= 0 ? String(row[cDesc]||'').trim() : '';
+      const rawAcc  = cAcc  >= 0 ? String(row[cAcc] ||'').trim() : '';
+
+      // Account mapping
+      let account = 'card_a';
+      const accL = rawAcc.toLowerCase();
+      if (accL.includes('нал') || accL.includes('cash')) account = 'cash';
+      else if (accL.includes('дарим') || accL.includes('д ')) account = 'card_d';
+
+      // Category
+      // Special rules: 23319 = ипотека, 20000 = аренда квартиры
+      let category;
+      if (Math.abs(amount - 23319) < 1) { category = 'housing'; }
+      else if (Math.abs(amount - 20000) < 1 && !isInc) { category = 'housing'; }
+      else { category = guessCategory(rawDesc, isInc); }
+
+      allTxs.push({
+        type: isInc ? 'inc' : 'exp',
+        amount,
+        category,
+        description: rawDesc,
+        date,
+        createdByName: s.owner,
+        account,
+        _owner: s.owner,
+        _raw: rawDesc,
+      });
+    });
+  });
+
+  // Sort by date
+  allTxs.sort((a,b) => a.date - b.date);
+
+  // Stats
+  const totalInc = allTxs.filter(t=>t.type==='inc').reduce((s,t)=>s+t.amount,0);
+  const totalExp = allTxs.filter(t=>t.type==='exp').reduce((s,t)=>s+t.amount,0);
+  document.getElementById('preview-stats').innerHTML = `
+    <div class="stat-box"><div class="val">${allTxs.length}</div><div class="lbl">Операций</div></div>
+    <div class="stat-box"><div class="val" style="color:#16A34A">₽ ${Math.round(totalInc).toLocaleString('ru-RU')}</div><div class="lbl">Доходов</div></div>
+    <div class="stat-box"><div class="val" style="color:#DC2626">₽ ${Math.round(totalExp).toLocaleString('ru-RU')}</div><div class="lbl">Расходов</div></div>
+    <div class="stat-box"><div class="val" style="color:#7C3AED">${skipped.length}</div><div class="lbl">Пропущено</div></div>`;
+
+  if (skipped.length) {
+    const warnEl = document.getElementById('preview-warn');
+    warnEl.style.display = 'block';
+    warnEl.innerHTML = `⚠️ Пропущено ${skipped.length} строк (нет суммы или даты):<br>` + skipped.slice(0,10).join('<br>') + (skipped.length>10?`<br>… ещё ${skipped.length-10}`:'');
+  }
+
+  // Table preview (first 50)
+  const CAT_NAMES = {
+    housing:'🏠 Жильё',food:'🛒 Продукты',cafe:'🍽️ Кафе',transport:'🚗 Транспорт',
+    mp:'📦 Маркетплейс',health:'💊 Медицина',kids:'👶 Дети',beauty:'💄 Косметика',
+    clothes:'👕 Одежда',help:'🤝 Помощь',cash:'💵 Наличные',other_e:'📋 Прочее расход',
+    salary:'💰 Зарплата',social:'🏛️ Соцвыплаты',maternity:'👶 Декрет',
+    family:'👨‍👩‍👧 От родных',return:'↩️ Возврат',other_i:'💵 Прочее доход',
+  };
+  const ACC_NAMES = {card_a:'Карта А',card_d:'Карта Д',cash:'Наличные'};
+  const preview = allTxs.slice(0,50);
+  document.getElementById('preview-body').innerHTML = preview.map(t => `<tr>
+    <td>${t.date.toLocaleDateString('ru-RU')}</td>
+    <td><span class="badge ${t.type}">${t.type==='inc'?'Доход':'Расход'}</span></td>
+    <td>${CAT_NAMES[t.category]||t.category}</td>
+    <td style="font-weight:700;color:${t.type==='inc'?'#16A34A':'#DC2626'}">${t.type==='inc'?'+':'−'} ₽ ${Math.round(t.amount).toLocaleString('ru-RU')}</td>
+    <td style="color:#64748B;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.description||'—'}</td>
+    <td>${t._owner}</td>
+    <td>${ACC_NAMES[t.account]||t.account}</td>
+  </tr>`).join('');
+  if (allTxs.length > 50) document.getElementById('preview-more').textContent = `Показано 50 из ${allTxs.length} — все будут импортированы`;
+
+  step(3);
+};
+
+/* ── IMPORT ─────────────────────────────────────── */
+window.doImport = async () => {
+  if (!familyId) { setStatus('import-status','err','❌ Не авторизованы. Войдите в основное приложение.'); return; }
+  if (!allTxs.length) { setStatus('import-status','err','❌ Нет данных для импорта'); return; }
+
+  const btn = document.getElementById('import-btn');
+  btn.disabled = true;
+  const prog = document.getElementById('import-progress');
+  const fill = document.getElementById('progress-fill');
+  prog.style.display = 'block';
+
+  setStatus('import-status','info','⏳ Импортируем…');
+
+  const col = collection(db, 'families', familyId, 'transactions');
+  let done = 0, errors = 0;
+  const BATCH = 10;
+
+  for (let i=0; i<allTxs.length; i+=BATCH) {
+    const chunk = allTxs.slice(i, i+BATCH);
+    await Promise.all(chunk.map(async t => {
+      try {
+        const d = t.date;
+        await addDoc(col, {
+          type:          t.type,
+          amount:        t.amount,
+          category:      t.category,
+          description:   t.description || '',
+          date:          Timestamp.fromDate(new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12,0,0)),
+          createdByName: t.createdByName,
+          account:       t.account,
+          createdAt:     Timestamp.now(),
+          imported:      true,
+        });
+        done++;
+      } catch(e) { errors++; }
+    }));
+    fill.style.width = Math.round((i+BATCH)/allTxs.length*100)+'%';
+    setStatus('import-status','info',`⏳ Загружено ${done} из ${allTxs.length}…`);
+  }
+
+  fill.style.width = '100%';
+  if (errors === 0) {
+    setStatus('import-status','ok',`✅ Импортировано ${done} операций! Откройте приложение — данные уже там.`);
+  } else {
+    setStatus('import-status','ok',`✅ Импортировано ${done} операций, ошибок: ${errors}.`);
+  }
+  btn.disabled = false;
+};
+
+</script>
+</body>
+</html>
