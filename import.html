@@ -180,31 +180,93 @@ window.doLogin = async () => {
 
 /* ── CATEGORY MAPPING ─────────────────────────────── */
 const CAT_MAP = {
-  // расходы
-  'жильё':     'housing', 'жкх':       'housing', 'ипотека':   'housing', 'аренда':   'housing', 'квартира': 'housing',
-  'продукты':  'food',    'супермаркет':'food',    'пятёрочка': 'food',    'магнит':   'food',    'перекрёсток':'food',
-  'кафе':      'cafe',    'ресторан':  'cafe',     'фастфуд':   'cafe',    'доставка': 'cafe',
-  'транспорт': 'transport','такси':    'transport','бензин':    'transport','метро':    'transport','автобус':  'transport',
-  'маркетплейс':'mp',     'wildberries':'mp',      'wb':        'mp',      'ozon':     'mp',       'озон':     'mp',
-  'медицина':  'health',  'аптека':    'health',   'врач':      'health',  'больница':  'health',
-  'дети':      'kids',    'ребёнок':   'kids',     'садик':     'kids',    'школа':    'kids',
-  'красота':   'beauty',  'косметика': 'beauty',   'парикмахер':'beauty',  'маникюр':  'beauty',
-  'одежда':    'clothes', 'обувь':     'clothes',
-  'помощь':    'help',    'перевод':   'help',
-  'наличные':  'cash',
+  // жильё / ЖКХ
+  'жильё':'housing','жкх':'housing','ипотека':'housing','аренда':'housing','квартира':'housing',
+  'коммунальн':'housing','коммун':'housing','электроэнерг':'housing','водоснабж':'housing',
+  'газ':'housing','ремонт':'housing','стройматериал':'housing',
+  // еда / продукты
+  'продукты':'food','супермаркет':'food','пятёрочка':'food','пятерочка':'food',
+  'магнит':'food','перекрёсток':'food','перекресток':'food','вкусвилл':'food',
+  'лента':'food','ашан':'food','metro':'food','spar':'food','спар':'food',
+  'дикси':'food','красное и белое':'food','бристол':'food','globus':'food','глобус':'food',
+  'фрукт':'food','овощ':'food','молоко':'food','хлеб':'food','мясо':'food',
+  // кафе / рестораны
+  'кафе':'cafe','ресторан':'cafe','фастфуд':'cafe','доставка':'cafe',
+  'суши':'cafe','пицца':'cafe','бургер':'cafe','шаурма':'cafe','столовая':'cafe',
+  'кофе':'cafe','буфет':'cafe','canteen':'cafe','mcdonald':'cafe','kfc':'cafe',
+  'вкусно и точка':'cafe','додо':'cafe','domino':'cafe','самокат':'cafe',
+  'яндекс еда':'cafe','delivery':'cafe',
+  // транспорт
+  'транспорт':'transport','такси':'transport','бензин':'transport','метро':'transport',
+  'автобус':'transport','азс':'transport','топливо':'transport','заправк':'transport',
+  'ситимобил':'transport','uber':'transport','каршеринг':'transport','делимобил':'transport',
+  'лукойл':'transport','газпромнефть':'transport','shell':'transport','bp ':'transport',
+  'яндекс такси':'transport','яндекс.такси':'transport','яндекс go':'transport',
+  'электричк':'transport','жд':'transport','авиабилет':'transport','аэрофлот':'transport',
+  // маркетплейсы
+  'маркетплейс':'mp','wildberries':'mp','вайлдберриз':'mp','wb ':'mp',
+  'ozon':'mp','озон':'mp','aliexpress':'mp','алиэкспресс':'mp','lamoda':'mp',
+  'яндекс маркет':'mp','сбермаркет':'mp','мегамаркет':'mp',
+  // здоровье
+  'медицина':'health','аптека':'health','врач':'health','больниц':'health',
+  'здоровье':'health','стоматолог':'health','клиник':'health','фитнес':'health',
+  'аптечн':'health','горздрав':'health','ригла':'health','эвалар':'health',
+  'тренажер':'health','спорт':'health',
+  // дети
+  'дети':'kids','детск':'kids','ребёнок':'kids','ребенок':'kids',
+  'садик':'kids','детский сад':'kids','школа':'kids','игрушк':'kids',
+  'детский мир':'kids','mothercare':'kids','lego':'kids','лего':'kids',
+  // красота
+  'красота':'beauty','косметик':'beauty','парикмахер':'beauty','маникюр':'beauty',
+  'педикюр':'beauty','салон':'beauty','эпиляц':'beauty','spa':'beauty',
+  'рив гош':'beauty','л этуаль':'beauty','золотое яблоко':'beauty','иль де боте':'beauty',
+  // одежда
+  'одежда':'clothes','обувь':'clothes','zara':'clothes','h&m':'clothes',
+  'befree':'clothes','gloria':'clothes','спортмастер':'clothes','adidas':'clothes',
+  'nike':'clothes','reserved':'clothes','pull&bear':'clothes',
+  // прочее
+  'наличные':'cash',
   // доходы
-  'зарплата':  'salary',  'аванс':     'salary',   'оклад':     'salary',
-  'социальн':  'social',  'пособие':   'social',   'льгота':    'social',
-  'декрет':    'maternity','материнский':'maternity',
-  'родители':  'family',  'родственник':'family',
-  'возврат':   'return',  'кешбэк':    'return',
+  'зарплата':'salary','аванс':'salary','оклад':'salary','заработн':'salary',
+  'социальн':'social','пособие':'social','льгота':'social','субсидия':'social',
+  'декрет':'maternity','материнский':'maternity','маткапитал':'maternity',
+  'родители':'family','родственник':'family',
+  'возврат':'return','кешбэк':'return','cashback':'return',
 };
 
-function guessCategory(text, isInc) {
-  if (!text) return isInc ? 'other_i' : 'other_e';
-  const low = String(text).toLowerCase();
+// Separate lightweight map for Тинькофф bank category column values
+const TINKOFF_CAT_MAP = {
+  'супермаркеты':'food','продукты':'food',
+  'рестораны':'cafe','кафе':'cafe','фастфуд':'cafe','общественное питание':'cafe',
+  'такси':'transport','транспорт':'transport','азс':'transport','авиабилеты':'transport',
+  'маркетплейсы':'mp',
+  'здоровье':'health','красота':'beauty','аптеки':'health',
+  'одежда':'clothes','обувь':'clothes',
+  'детские':'kids',
+  'жилищн':'housing','коммунальн':'housing',
+  'образование':'other_e','развлечения':'other_e','электроника':'other_e',
+  'зарплата':'salary','пополнение':'other_i','перевод':'other_i',
+  'социальн':'social',
+};
+
+function guessCategory(bankCat, desc, isInc) {
+  // 1. Try Тинькофф bank category first (most reliable)
+  if (bankCat) {
+    const bl = String(bankCat).toLowerCase();
+    for (const [kw, cat] of Object.entries(TINKOFF_CAT_MAP)) {
+      if (bl.includes(kw)) return cat;
+    }
+  }
+  // 2. Try full text match (merchant name + bank cat combined)
+  const combined = [bankCat, desc].filter(Boolean).join(' ');
+  if (!combined) return isInc ? 'other_i' : 'other_e';
+  const low = combined.toLowerCase();
   for (const [kw, cat] of Object.entries(CAT_MAP)) {
-    if (low.includes(kw)) return cat;
+    if (low.includes(kw)) {
+      // For income transactions, 'перевод' stays as other_i
+      if (isInc && (cat === 'help' || cat === 'other_e')) return 'other_i';
+      return cat;
+    }
   }
   return isInc ? 'other_i' : 'other_e';
 }
@@ -312,11 +374,13 @@ window.parseFiles = async () => {
       }
       const headers = rows[hdrIdx].map(h=>String(h||'').trim());
       const dataRows = rows.slice(hdrIdx+1).filter(r=>r.some(c=>c!==null&&c!==undefined&&c!==''));
-      const colDate = detectCol(headers, DATE_KEYS);
-      const colAmt  = detectCol(headers, AMOUNT_KEYS);
-      const colDesc = detectCol(headers, DESC_KEYS);
-      const colAcc  = detectCol(headers, ACC_KEYS);
-      parsedSheets.push({owner, txType:fDef.txType, headers, rows:dataRows, colDate, colAmt, colDesc, colAcc, fileName:inp.files[0].name});
+      const colDate    = detectCol(headers, DATE_KEYS);
+      const colAmt     = detectCol(headers, AMOUNT_KEYS);
+      // Prefer merchant name (Описание) as display desc; detect bank category separately
+      const colDesc    = detectCol(headers, ['описание','комментарий','статья','наименование','назначение','description','comment','note']);
+      const colBankCat = detectCol(headers, ['категория','тип операции','category']);
+      const colAcc     = detectCol(headers, ACC_KEYS);
+      parsedSheets.push({owner, txType:fDef.txType, headers, rows:dataRows, colDate, colAmt, colDesc, colBankCat, colAcc, fileName:inp.files[0].name});
       loaded++;
     } catch(e) {
       setStatus('parse-status','err','❌ Ошибка чтения: '+e.message);
@@ -361,11 +425,12 @@ window.buildPreview = () => {
   const skipped = [];
 
   parsedSheets.forEach((s, i) => {
-    const cDate = parseInt(document.getElementById(`map-${i}-date`)?.value ?? s.colDate);
-    const cAmt  = parseInt(document.getElementById(`map-${i}-amt`)?.value  ?? s.colAmt);
-    const cDesc = parseInt(document.getElementById(`map-${i}-desc`)?.value ?? s.colDesc);
-    const cAcc  = parseInt(document.getElementById(`map-${i}-acc`)?.value  ?? s.colAcc);
-    const isInc = s.txType === 'inc';
+    const cDate    = parseInt(document.getElementById(`map-${i}-date`)?.value ?? s.colDate);
+    const cAmt     = parseInt(document.getElementById(`map-${i}-amt`)?.value  ?? s.colAmt);
+    const cDesc    = parseInt(document.getElementById(`map-${i}-desc`)?.value ?? s.colDesc);
+    const cAcc     = parseInt(document.getElementById(`map-${i}-acc`)?.value  ?? s.colAcc);
+    const cBankCat = s.colBankCat ?? -1;
+    const isInc    = s.txType === 'inc';
 
     s.rows.forEach((row, ri) => {
       let rawAmt = cAmt >= 0 ? row[cAmt] : null;
@@ -391,21 +456,22 @@ window.buildPreview = () => {
       // Only 2026 data (from beginning of year)
       if (date.getFullYear() < 2024) { skipped.push(`${s.owner} строка ${ri+2}: слишком старая дата ${date.toLocaleDateString('ru-RU')}`); return; }
 
-      const rawDesc = cDesc >= 0 ? String(row[cDesc]||'').trim() : '';
-      const rawAcc  = cAcc  >= 0 ? String(row[cAcc] ||'').trim() : '';
+      const rawDesc    = cDesc    >= 0 ? String(row[cDesc]   ||'').trim() : '';
+      const rawBankCat = cBankCat >= 0 ? String(row[cBankCat]||'').trim() : '';
+      const rawAcc     = cAcc     >= 0 ? String(row[cAcc]    ||'').trim() : '';
 
       // Account mapping
-      let account = 'card_a';
+      let account = s.owner.includes('Дарима') ? 'card_d' : 'card_a';
       const accL = rawAcc.toLowerCase();
       if (accL.includes('нал') || accL.includes('cash')) account = 'cash';
-      else if (accL.includes('дарим') || accL.includes('д ')) account = 'card_d';
+      else if (accL.includes('дарим')) account = 'card_d';
+      else if (accL.includes('анан')) account = 'card_a';
 
-      // Category
-      // Special rules: 23319 = ипотека, 20000 = аренда квартиры
+      // Category — special rules first, then guess using bank category + merchant name
       let category;
       if (Math.abs(amount - 23319) < 1) { category = 'housing'; }
       else if (Math.abs(amount - 20000) < 1 && !isInc) { category = 'housing'; }
-      else { category = guessCategory(rawDesc, isInc); }
+      else { category = guessCategory(rawBankCat, rawDesc, isInc); }
 
       allTxs.push({
         type: isInc ? 'inc' : 'exp',
