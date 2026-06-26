@@ -805,8 +805,12 @@ input,select{font-family:inherit}
 <div id="payday-modal" class="overlay" onclick="bgClose(event,'payday-modal')">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-title">📅 День зарплаты</div>
-    <div class="f-row"><label class="f-label">Число месяца (1–31)</label><input id="payday-input" type="number" class="f-input" placeholder="15" min="1" max="31" inputmode="numeric"></div>
+    <div class="sheet-title">📅 Зарплата</div>
+    <p style="font-size:12px;color:var(--t2);margin:0 0 12px;line-height:1.5">Если день выплаты приходится на выходной или праздник — автоматически переносится на предыдущий рабочий день.</p>
+    <div class="f-row"><label class="f-label">1-я выплата (число месяца)</label><input id="payday-input1" type="number" class="f-input" placeholder="15" min="1" max="31" inputmode="numeric"></div>
+    <div class="f-row"><label class="f-label">2-я выплата (число месяца)</label><input id="payday-input2" type="number" class="f-input" placeholder="30" min="1" max="31" inputmode="numeric"></div>
+    <div class="f-row"><label class="f-label">Общая зарплата в месяц (₽)</label><input id="salary-input" type="number" class="f-input" placeholder="100 000" min="0" inputmode="numeric"></div>
+    <p style="font-size:11px;color:var(--t2);margin:0 0 16px;line-height:1.5">Сумма выплаты рассчитывается пропорционально рабочим дням периода с учётом российских праздников.</p>
     <button class="btn-save" onclick="savePaydaySettings()">Сохранить</button>
     <button class="btn-cancel" onclick="closeOverlay('payday-modal')">Отмена</button>
   </div>
@@ -914,7 +918,8 @@ const db    = getFirestore(fbApp);
 
 /* ── CATEGORIES ──────────────────────────────────── */
 const CAT_EXP = [
-  {id:'housing',   e:'🏠', n:'Жильё/ЖКХ'},
+  {id:'mortgage',  e:'🏦', n:'Ипотека'},
+  {id:'housing',   e:'🏠', n:'ЖКХ'},
   {id:'food',      e:'🛒', n:'Продукты'},
   {id:'cafe',      e:'🍽️', n:'Кафе'},
   {id:'transport', e:'🚗', n:'Транспорт'},
@@ -923,8 +928,10 @@ const CAT_EXP = [
   {id:'kids',      e:'👶', n:'Дети'},
   {id:'beauty',    e:'💄', n:'Косметика'},
   {id:'clothes',   e:'👕', n:'Одежда'},
+  {id:'office',    e:'🏢', n:'Контора'},
   {id:'help',      e:'🤝', n:'Помощь'},
   {id:'cash',      e:'💵', n:'Наличные'},
+  {id:'debt_exp',  e:'💸', n:'Возврат долга'},
   {id:'other_e',   e:'📋', n:'Прочее'},
 ];
 const CAT_INC = [
@@ -933,6 +940,7 @@ const CAT_INC = [
   {id:'maternity', e:'👶', n:'Декрет'},
   {id:'family',    e:'👨‍👩‍👧', n:'От родных'},
   {id:'return',    e:'↩️', n:'Возвраты'},
+  {id:'debt_inc',  e:'🤝', n:'Возврат долга'},
   {id:'other_i',   e:'💵', n:'Прочее'},
 ];
 const CAT_INNER   = [{id:'transfer', e:'⇄',  n:'Перевод'}];
@@ -953,7 +961,8 @@ let customCategories = []; // [{id, e, n}]
 let analyticsPeriod = 'month';
 // New features state
 let accountBalances = {card_a: 0, card_d: 0, cash: 0};
-let paydayDay = 0;
+let paydayDays = [];        // [15, 30] — два дня зарплаты
+let monthlySalary = 0;      // общая сумма зарплаты в месяц
 let recurringList = []; // [{id, name, amount, day, category, account}]
 
 /* ── DARK MODE ───────────────────────────────────── */
@@ -977,6 +986,74 @@ function updateDarkToggleUI(theme) {
 }
 
 /* ── HELPERS ─────────────────────────────────────── */
+/* ── РОССИЙСКИЕ ПРАЗДНИКИ И РАБОЧИЕ ДНИ ─────────── */
+// Фиксированные праздники (ММ-ДД), актуальны каждый год
+const RU_FIXED_HOLIDAYS = new Set([
+  '01-01','01-02','01-03','01-04','01-05','01-06','01-07','01-08',
+  '02-23','03-08','05-01','05-09','06-12','11-04'
+]);
+// Перенесённые/дополнительные дни отдыха по годам
+const RU_EXTRA_HOLIDAYS = {
+  2025: new Set(['02-24','03-10','05-02','05-08','11-03']),
+  2026: new Set(['01-09','03-09','05-04','05-08','11-03']),
+};
+// Рабочие субботы (переносы) по годам
+const RU_WORK_SATURDAYS = {
+  2025: new Set(['01-11','04-05','06-07','11-01','12-20']),
+  2026: new Set(['01-10','03-07','04-25','05-16','11-07']),
+};
+
+function isRuHoliday(date) {
+  const y  = date.getFullYear();
+  const md = String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
+  if (RU_FIXED_HOLIDAYS.has(md)) return true;
+  if (RU_EXTRA_HOLIDAYS[y]?.has(md)) return true;
+  return false;
+}
+
+function isWorkingDay(date) {
+  const dow = date.getDay(); // 0=вс, 6=сб
+  const y   = date.getFullYear();
+  const md  = String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
+  if (isRuHoliday(date)) return false;
+  if (dow === 0) return false;
+  if (dow === 6) return RU_WORK_SATURDAYS[y]?.has(md) ?? false;
+  return true;
+}
+
+// Возвращает предшествующий рабочий день, если день нерабочий
+function prevWorkingDay(year, month, day) {
+  let d = new Date(year, month, day);
+  while (!isWorkingDay(d)) {
+    d.setDate(d.getDate() - 1);
+  }
+  return d;
+}
+
+// Кол-во рабочих дней в диапазоне дней месяца (включительно)
+function countWorkDays(year, month, fromDay, toDay) {
+  let n = 0;
+  const last = new Date(year, month+1, 0).getDate();
+  toDay = Math.min(toDay, last);
+  for (let d = fromDay; d <= toDay; d++) {
+    if (isWorkingDay(new Date(year, month, d))) n++;
+  }
+  return n;
+}
+
+// Рассчитывает сумму выплаты за период
+// period: 1 = 1–15 числа, 2 = 16–конец месяца
+function calcSalaryPart(year, month, period) {
+  if (!monthlySalary) return 0;
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const totalWD = countWorkDays(year, month, 1, daysInMonth);
+  if (!totalWD) return 0;
+  const partWD = period === 1
+    ? countWorkDays(year, month, 1, 15)
+    : countWorkDays(year, month, 16, daysInMonth);
+  return Math.round(monthlySalary * partWD / totalWD);
+}
+
 function toast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg; el.classList.add('show');
@@ -1115,11 +1192,13 @@ function subscribeSettings() {
       savingsGoal      = d.savingsGoal      || {name:'',target:0,deadline:''};
       customCategories = d.customCategories || [];
       accountBalances  = d.accountBalances  || {card_a:0,card_d:0,cash:0};
-      paydayDay        = d.paydayDay        || 0;
+      // backward compat: paydayDay (old) → paydayDays (new)
+      paydayDays       = d.paydayDays || (d.paydayDay ? [d.paydayDay] : []);
+      monthlySalary    = d.monthlySalary    || 0;
       recurringList    = d.recurringList    || [];
     } else {
       budgets = {}; savingsGoal = {name:'',target:0,deadline:''}; customCategories = [];
-      accountBalances = {card_a:0,card_d:0,cash:0}; paydayDay = 0; recurringList = [];
+      accountBalances = {card_a:0,card_d:0,cash:0}; paydayDays = []; monthlySalary = 0; recurringList = [];
     }
     renderAll();
   });
@@ -1938,7 +2017,7 @@ function updateSettingsLabels() {
   const pinSub = document.getElementById('pin-set-sub');
   if (pinSub) pinSub.textContent = hasPIN ? 'Установлен ✓' : 'Не установлен';
   const pdSub = document.getElementById('payday-set-sub');
-  if (pdSub) pdSub.textContent = paydayDay ? `${paydayDay}-е число` : 'Не указан';
+  if (pdSub) pdSub.textContent = paydayDays.length ? paydayDays.map(d=>d+'-е').join(' и ')+' число' : 'Не указан';
   const recSub = document.getElementById('recurring-set-sub');
   if (recSub) recSub.textContent = recurringList.length ? recurringList.length+' платежей' : 'Не добавлены';
 }
@@ -2086,44 +2165,81 @@ window.saveAccBalances = async () => {
 /* ══════════════════════════════════════════════════
    ДО ЗАРПЛАТЫ
    ══════════════════════════════════════════════════ */
+
+// Возвращает ближайшую дату фактической выплаты (с учётом праздников/выходных)
+// из списка дней paydayDays, начиная с «сегодня»
+function nextActualPayday(fromDate) {
+  if (!paydayDays.length) return null;
+  const today = new Date(fromDate); today.setHours(0,0,0,0);
+  const candidates = [];
+  for (let monthOffset = 0; monthOffset <= 2; monthOffset++) {
+    const y = today.getFullYear();
+    const m = today.getMonth() + monthOffset;
+    for (const rawDay of paydayDays) {
+      const daysInM = new Date(y, m+1, 0).getDate();
+      const clampedDay = Math.min(rawDay, daysInM);
+      const actual = prevWorkingDay(y, m, clampedDay);
+      if (actual >= today) candidates.push(actual);
+    }
+  }
+  candidates.sort((a,b)=>a-b);
+  return candidates[0] || null;
+}
+
 function renderPayday(m) {
   const card = document.getElementById('payday-card');
-  if (!paydayDay) { card.style.display='none'; return; }
+  if (!paydayDays.length) { card.style.display='none'; return; }
   card.style.display='block';
-  const now = new Date();
-  const thisDay = now.getDate();
-  let daysLeft;
-  if (thisDay < paydayDay) {
-    daysLeft = paydayDay - thisDay;
-  } else {
-    // next month payday
-    const nextPayday = new Date(now.getFullYear(), now.getMonth()+1, paydayDay);
-    daysLeft = Math.round((nextPayday - now) / 864e5);
-  }
-  const inc = m.filter(t=>t.type==='inc').reduce((s,t)=>s+t.amount,0);
-  const exp = m.filter(t=>t.type==='exp').reduce((s,t)=>s+t.amount,0);
+
+  const now = new Date(); now.setHours(0,0,0,0);
+  const next = nextActualPayday(now);
+  if (!next) { card.style.display='none'; return; }
+
+  const daysLeft = Math.round((next - now) / 864e5);
+  const isToday  = daysLeft === 0;
+
+  // Определяем период: если следующий день ≤15 → 1-й период, иначе → 2-й
+  const isPeriod1 = next.getDate() <= 15;
+  const expectedAmt = calcSalaryPart(next.getFullYear(), next.getMonth(), isPeriod1 ? 1 : 2);
+
+  const inc    = m.filter(t=>t.type==='inc').reduce((s,t)=>s+t.amount,0);
+  const exp    = m.filter(t=>t.type==='exp').reduce((s,t)=>s+t.amount,0);
   const remain = inc - exp;
   const dailyBudget = daysLeft > 0 ? Math.round(remain / daysLeft) : 0;
+
+  const nextDateStr = next.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+  const daysLabel   = isToday ? 'Сегодня зарплата!' : (daysLeft===1 ? 'завтра' : `через ${daysLeft} дн.`);
+
   document.getElementById('payday-body').innerHTML = `
     <div style="text-align:center;padding:8px 0 4px">
-      <div class="payday-days">${daysLeft}</div>
-      <div class="payday-days-lbl">дней до зарплаты</div>
+      <div class="payday-days">${isToday ? '🎉' : daysLeft}</div>
+      <div class="payday-days-lbl">${isToday ? 'Сегодня зарплата!' : 'дней до зарплаты'}</div>
+      <div style="font-size:12px;color:var(--t2);margin-top:2px">${nextDateStr} · ${daysLabel}</div>
     </div>
+    ${expectedAmt ? `<div class="payday-row"><span class="payday-lbl">💰 Ожидаемая выплата</span><span class="payday-val" style="color:var(--green)">${fmts(expectedAmt)}</span></div>` : ''}
     <div class="payday-row"><span class="payday-lbl">Остаток этого месяца</span><span class="payday-val" style="color:${remain>=0?'var(--green)':'var(--red)'}">${fmts(remain)}</span></div>
     <div class="payday-row"><span class="payday-lbl">Можно тратить в день</span><span class="payday-val" style="color:${dailyBudget>=0?'var(--primary)':'var(--red)'}">${fmts(dailyBudget)}</span></div>`;
 }
 
 window.openPaydaySettings = () => {
-  document.getElementById('payday-input').value = paydayDay||'';
+  const [d1, d2] = paydayDays.length >= 2 ? paydayDays : [paydayDays[0]||15, paydayDays[1]||30];
+  document.getElementById('payday-input1').value = d1 || '';
+  document.getElementById('payday-input2').value = d2 || '';
+  document.getElementById('salary-input').value  = monthlySalary || '';
   openOverlay('payday-modal');
 };
 
 window.savePaydaySettings = async () => {
   if (!familyId) { toast('Нет подключения'); return; }
-  const day = parseInt(document.getElementById('payday-input').value)||0;
-  if (day<1||day>31) { toast('Введите число от 1 до 31'); return; }
+  const d1  = parseInt(document.getElementById('payday-input1').value)||0;
+  const d2  = parseInt(document.getElementById('payday-input2').value)||0;
+  const sal = parseFloat(document.getElementById('salary-input').value)||0;
+  if (d1 && (d1<1||d1>31)) { toast('Введите число 1–31'); return; }
+  if (d2 && (d2<1||d2>31)) { toast('Введите число 1–31'); return; }
+  const days = [d1,d2].filter(Boolean).sort((a,b)=>a-b);
   try {
-    await setDoc(doc(db,'families',familyId,'settings','config'),{paydayDay:day},{merge:true});
+    await setDoc(doc(db,'families',familyId,'settings','config'),
+      {paydayDays:days, monthlySalary:sal},{merge:true});
     toast('Сохранено ✓');
     closeOverlay('payday-modal');
   } catch(e) { toast('Ошибка: '+e.message); }
