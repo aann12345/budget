@@ -180,10 +180,16 @@ window.doLogin = async () => {
 
 /* ── CATEGORY MAPPING ─────────────────────────────── */
 const CAT_MAP = {
-  // жильё / ЖКХ
-  'жильё':'housing','жкх':'housing','ипотека':'housing','аренда':'housing','квартира':'housing',
+  // жильё / ЖКХ / ипотека
+  'ипотека':'mortgage','ипотечн':'mortgage',
+  'жильё':'housing','жкх':'housing','аренда':'housing','квартира':'housing',
   'коммунальн':'housing','коммун':'housing','электроэнерг':'housing','водоснабж':'housing',
   'газ':'housing','ремонт':'housing','стройматериал':'housing',
+  // возврат долга
+  'долг':'debt_exp','займ':'debt_exp','заём':'debt_exp',
+  // работа
+  'зарплата':'salary','аванс':'salary','работодатель':'salary',
+  'контора':'office','командировка':'office',
   // еда / продукты
   'продукты':'food','супермаркет':'food','пятёрочка':'food','пятерочка':'food',
   'магнит':'food','перекрёсток':'food','перекресток':'food','вкусвилл':'food',
@@ -235,6 +241,7 @@ const CAT_MAP = {
 };
 
 // Separate lightweight map for Тинькофф bank category column values
+// '__inner__' — внутрисемейный перевод, не учитывается в расходах/доходах
 const TINKOFF_CAT_MAP = {
   'супермаркеты':'food','продукты':'food',
   'рестораны':'cafe','кафе':'cafe','фастфуд':'cafe','общественное питание':'cafe',
@@ -244,9 +251,13 @@ const TINKOFF_CAT_MAP = {
   'одежда':'clothes','обувь':'clothes',
   'детские':'kids',
   'жилищн':'housing','коммунальн':'housing',
+  'ипотек':'mortgage',
   'образование':'other_e','развлечения':'other_e','электроника':'other_e',
-  'зарплата':'salary','пополнение':'other_i','перевод':'other_i',
+  'зарплата':'salary','аванс':'salary',
+  'пополнение':'other_i',
+  'перевод':'__inner__',  // переводы — внутри семьи, исключаем из аналитики
   'социальн':'social',
+  'возврат':'debt_inc',
 };
 
 function guessCategory(bankCat, desc, isInc) {
@@ -468,10 +479,22 @@ window.buildPreview = () => {
       else if (accL.includes('анан')) account = 'card_a';
 
       // Category — special rules first, then guess using bank category + merchant name
-      let category;
-      if (Math.abs(amount - 23319) < 1) { category = 'housing'; }
+      let category = guessCategory(rawBankCat, rawDesc, isInc);
+
+      // Внутрисемейный перевод — не считается расходом/доходом
+      if (category === '__inner__') {
+        allTxs.push({
+          type: 'inner', amount, category: 'transfer',
+          description: rawDesc || rawBankCat,
+          date, createdByName: s.owner, account,
+          _owner: s.owner, _raw: rawDesc,
+        });
+        return;
+      }
+
+      // Жёсткие правила по сумме (ипотека vs ЖКХ подбираются вручную)
+      if (Math.abs(amount - 23319) < 1 && !isInc) { category = 'mortgage'; }
       else if (Math.abs(amount - 20000) < 1 && !isInc) { category = 'housing'; }
-      else { category = guessCategory(rawBankCat, rawDesc, isInc); }
 
       allTxs.push({
         type: isInc ? 'inc' : 'exp',
