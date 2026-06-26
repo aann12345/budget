@@ -403,6 +403,37 @@ input,select{font-family:inherit}
 .rec-pay-btn{display:block;margin-top:3px;padding:4px 10px;background:var(--primary);color:#fff;border-radius:8px;font-size:11px;font-weight:700}
 .rec-paid{display:block;margin-top:3px;padding:4px 10px;background:var(--green-l);color:var(--green);border-radius:8px;font-size:11px;font-weight:700}
 
+/* MONTHLY PLAN */
+.plan-section-hdr{font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--t3);margin:10px 0 4px}
+.plan-section-hdr:first-child{margin-top:2px}
+.plan-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--bg)}
+.plan-row:last-of-type{border:none}
+.plan-row-ico{font-size:16px;width:22px;text-align:center;flex-shrink:0}
+.plan-row-name{flex:1;font-size:13px;color:var(--t1);font-weight:500}
+.plan-row-amt{font-size:13px;font-weight:700;color:var(--t1)}
+.plan-divider{height:1px;background:var(--border);margin:10px 0}
+.plan-total-row{display:flex;justify-content:space-between;font-size:13px;color:var(--t2);padding:2px 0}
+.plan-total-row b{color:var(--t1)}
+.plan-free{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:10px;margin-top:8px;font-size:14px;font-weight:800;background:var(--primary-l);color:var(--primary)}
+.plan-fact{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.plan-fact-title{font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
+.plan-bar-row{margin-bottom:7px}
+.plan-bar-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:3px}
+.plan-bar-labels span:last-child{font-weight:700;color:var(--t1)}
+.plan-bar{height:7px;background:var(--bg);border-radius:4px;overflow:hidden}
+.plan-bar-fill{height:100%;border-radius:4px;transition:width .5s ease}
+/* PLAN MODAL */
+.plan-item-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bg)}
+.plan-item-row:last-child{border:none}
+.plan-item-ico{font-size:18px;width:28px;text-align:center}
+.plan-item-info{flex:1;min-width:0}
+.plan-item-name{font-size:13px;font-weight:700;color:var(--t1)}
+.plan-item-sub{font-size:11px;color:var(--t2)}
+.plan-item-amt{font-size:14px;font-weight:800;margin-right:8px}
+.plan-type-toggle{display:flex;gap:0;border:2px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px}
+.plan-type-btn{flex:1;padding:8px;text-align:center;font-size:13px;font-weight:700;cursor:pointer;background:none;border:none;color:var(--t2);transition:all .2s}
+.plan-type-btn.active{background:var(--primary);color:#fff}
+
 /* TOP SHOPS */
 .shop-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bg)}
 .shop-item:last-child{border:none}
@@ -531,6 +562,12 @@ input,select{font-family:inherit}
         <div id="payday-body"></div>
       </div>
 
+      <!-- Месячный план -->
+      <div class="card" id="plan-card" style="display:none">
+        <div class="card-h">📋 Месячный план <span class="card-link" onclick="openPlanSettings()">Настроить</span></div>
+        <div id="plan-body"></div>
+      </div>
+
       <!-- Регулярные платежи -->
       <div class="card" id="recurring-card" style="display:none">
         <div class="card-h">🔄 Регулярные платежи <span class="card-link" onclick="openRecurringSettings()">+</span></div>
@@ -653,6 +690,10 @@ input,select{font-family:inherit}
         <div class="set-section-title">Регулярные платежи</div>
         <div class="set-item" onclick="openRecurringSettings()">
           <div class="set-item-l"><div class="set-ico">🔄</div><div><div class="set-nm">Регулярные платежи</div><div class="set-sub" id="recurring-set-sub">Не добавлены</div></div></div>
+          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
+        </div>
+        <div class="set-item" onclick="openPlanSettings()">
+          <div class="set-item-l"><div class="set-ico">📋</div><div><div class="set-nm">Месячный план</div><div class="set-sub" id="plan-set-sub">Не настроен</div></div></div>
           <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
         </div>
       </div>
@@ -816,6 +857,26 @@ input,select{font-family:inherit}
   </div>
 </div>
 
+<!-- MONTHLY PLAN MODAL -->
+<div id="plan-modal" class="overlay" onclick="bgClose(event,'plan-modal')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">📋 Месячный план</div>
+    <div id="plan-items-list"></div>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+      <div class="plan-type-toggle">
+        <button class="plan-type-btn active" id="plan-type-inc" onclick="setPlanType('inc')">💰 Доход</button>
+        <button class="plan-type-btn" id="plan-type-exp" onclick="setPlanType('exp')">💸 Расход</button>
+      </div>
+      <div class="f-row"><label class="f-label">Название</label><input id="plan-name-input" type="text" class="f-input" placeholder="Зарплата, ипотека…"></div>
+      <div class="f-row"><label class="f-label">Категория</label><select id="plan-cat-input" class="f-input"></select></div>
+      <div class="f-row"><label class="f-label">Сумма (₽)</label><input id="plan-amount-input" type="number" class="f-input" placeholder="100 000" min="0" inputmode="numeric"></div>
+      <button class="btn-save" onclick="addPlanItem()">Добавить</button>
+    </div>
+    <button class="btn-cancel" onclick="closeOverlay('plan-modal')">Закрыть</button>
+  </div>
+</div>
+
 <!-- RECURRING SETTINGS MODAL -->
 <div id="recurring-modal" class="overlay" onclick="bgClose(event,'recurring-modal')">
   <div class="sheet">
@@ -964,6 +1025,7 @@ let accountBalances = {card_a: 0, card_d: 0, cash: 0};
 let paydayDays = [];        // [15, 30] — два дня зарплаты
 let monthlySalary = 0;      // общая сумма зарплаты в месяц
 let recurringList = []; // [{id, name, amount, day, category, account}]
+let monthlyPlan = [];   // [{id, name, amount, category, type}]
 
 /* ── DARK MODE ───────────────────────────────────── */
 (function initDarkMode() {
@@ -1196,9 +1258,10 @@ function subscribeSettings() {
       paydayDays       = d.paydayDays || (d.paydayDay ? [d.paydayDay] : []);
       monthlySalary    = d.monthlySalary    || 0;
       recurringList    = d.recurringList    || [];
+      monthlyPlan      = d.monthlyPlan      || [];
     } else {
       budgets = {}; savingsGoal = {name:'',target:0,deadline:''}; customCategories = [];
-      accountBalances = {card_a:0,card_d:0,cash:0}; paydayDays = []; monthlySalary = 0; recurringList = [];
+      accountBalances = {card_a:0,card_d:0,cash:0}; paydayDays = []; monthlySalary = 0; recurringList = []; monthlyPlan = [];
     }
     renderAll();
   });
@@ -1221,6 +1284,7 @@ function renderAll() {
   renderInsights(m);
   renderStreakBadge();
   renderAccBalances();
+  renderMonthlyPlan(m);
   renderPayday(m);
   renderRecurring(m);
   updateSettingsLabels();
@@ -2018,6 +2082,14 @@ function updateSettingsLabels() {
   if (pinSub) pinSub.textContent = hasPIN ? 'Установлен ✓' : 'Не установлен';
   const pdSub = document.getElementById('payday-set-sub');
   if (pdSub) pdSub.textContent = paydayDays.length ? paydayDays.map(d=>d+'-е').join(' и ')+' число' : 'Не указан';
+  const planSub = document.getElementById('plan-set-sub');
+  if (planSub) {
+    const pi = monthlyPlan.filter(p=>p.type==='inc').reduce((s,p)=>s+p.amount,0);
+    const pe = monthlyPlan.filter(p=>p.type==='exp').reduce((s,p)=>s+p.amount,0);
+    planSub.textContent = monthlyPlan.length
+      ? `Доходы ${fmts(pi)} · Расходы ${fmts(pe)}`
+      : 'Не настроен';
+  }
   const recSub = document.getElementById('recurring-set-sub');
   if (recSub) recSub.textContent = recurringList.length ? recurringList.length+' платежей' : 'Не добавлены';
 }
@@ -2242,6 +2314,133 @@ window.savePaydaySettings = async () => {
       {paydayDays:days, monthlySalary:sal},{merge:true});
     toast('Сохранено ✓');
     closeOverlay('payday-modal');
+  } catch(e) { toast('Ошибка: '+e.message); }
+};
+
+/* ══════════════════════════════════════════════════
+   МЕСЯЧНЫЙ ПЛАН
+   ══════════════════════════════════════════════════ */
+function renderMonthlyPlan(m) {
+  const card = document.getElementById('plan-card');
+  if (!monthlyPlan.length) { card.style.display='none'; return; }
+  card.style.display='block';
+
+  const planInc = monthlyPlan.filter(p=>p.type==='inc');
+  const planExp = monthlyPlan.filter(p=>p.type==='exp');
+  const totalPlanInc = planInc.reduce((s,p)=>s+p.amount,0);
+  const totalPlanExp = planExp.reduce((s,p)=>s+p.amount,0);
+  const free = totalPlanInc - totalPlanExp;
+
+  const factInc = m.filter(t=>t.type==='inc').reduce((s,t)=>s+t.amount,0);
+  const factExp = m.filter(t=>t.type==='exp').reduce((s,t)=>s+t.amount,0);
+
+  const pctInc = totalPlanInc ? Math.min(100,Math.round(factInc/totalPlanInc*100)) : 0;
+  const pctExp = totalPlanExp ? Math.min(100,Math.round(factExp/totalPlanExp*100)) : 0;
+
+  const rowsInc = planInc.map(p=>{
+    const cat = catById(p.category);
+    return `<div class="plan-row"><span class="plan-row-ico">${cat.e}</span><span class="plan-row-name">${p.name}</span><span class="plan-row-amt" style="color:var(--green)">${fmts(p.amount)}</span></div>`;
+  }).join('');
+  const rowsExp = planExp.map(p=>{
+    const cat = catById(p.category);
+    return `<div class="plan-row"><span class="plan-row-ico">${cat.e}</span><span class="plan-row-name">${p.name}</span><span class="plan-row-amt" style="color:var(--red)">${fmts(p.amount)}</span></div>`;
+  }).join('');
+
+  const freeColor = free >= 0 ? 'var(--green)' : 'var(--red)';
+
+  document.getElementById('plan-body').innerHTML = `
+    ${planInc.length ? `<div class="plan-section-hdr">Доходы</div>${rowsInc}` : ''}
+    ${planExp.length ? `<div class="plan-section-hdr">Расходы</div>${rowsExp}` : ''}
+    <div class="plan-divider"></div>
+    <div class="plan-total-row"><span>Итого доходов</span><b style="color:var(--green)">${fmts(totalPlanInc)}</b></div>
+    <div class="plan-total-row"><span>Итого расходов</span><b style="color:var(--red)">${fmts(totalPlanExp)}</b></div>
+    <div class="plan-free"><span>Остаток</span><span style="color:${freeColor}">${fmts(free)}</span></div>
+    ${(factInc > 0 || factExp > 0) ? `
+    <div class="plan-fact">
+      <div class="plan-fact-title">Факт этого месяца</div>
+      ${totalPlanInc ? `<div class="plan-bar-row">
+        <div class="plan-bar-labels"><span>💰 Получено</span><span>${fmts(factInc)} / ${fmts(totalPlanInc)} · ${pctInc}%</span></div>
+        <div class="plan-bar"><div class="plan-bar-fill" style="width:${pctInc}%;background:var(--green)"></div></div>
+      </div>` : ''}
+      ${totalPlanExp ? `<div class="plan-bar-row">
+        <div class="plan-bar-labels"><span>💸 Потрачено</span><span>${fmts(factExp)} / ${fmts(totalPlanExp)} · ${pctExp}%</span></div>
+        <div class="plan-bar"><div class="plan-bar-fill" style="width:${pctExp}%;background:${pctExp>100?'var(--red)':'var(--primary)'}"></div></div>
+      </div>` : ''}
+    </div>` : ''}`;
+}
+
+let planType = 'inc'; // текущий тип в форме добавления
+
+window.setPlanType = type => {
+  planType = type;
+  document.getElementById('plan-type-inc').classList.toggle('active', type==='inc');
+  document.getElementById('plan-type-exp').classList.toggle('active', type==='exp');
+  // обновляем список категорий
+  const cats = type==='inc' ? CAT_INC : CAT_EXP;
+  document.getElementById('plan-cat-input').innerHTML =
+    cats.map(c=>`<option value="${c.id}">${c.e} ${c.n}</option>`).join('');
+};
+
+window.openPlanSettings = () => {
+  planType = 'inc';
+  document.getElementById('plan-type-inc').classList.add('active');
+  document.getElementById('plan-type-exp').classList.remove('active');
+  window.setPlanType('inc');
+  document.getElementById('plan-name-input').value='';
+  document.getElementById('plan-amount-input').value='';
+  renderPlanItemsList();
+  openOverlay('plan-modal');
+};
+
+function renderPlanItemsList() {
+  const el = document.getElementById('plan-items-list');
+  if (!el) return;
+  if (!monthlyPlan.length) {
+    el.innerHTML='<p style="text-align:center;color:var(--t2);font-size:13px;padding:10px 0">Список пуст</p>';
+    return;
+  }
+  const planInc = monthlyPlan.filter(p=>p.type==='inc');
+  const planExp = monthlyPlan.filter(p=>p.type==='exp');
+  const renderGroup = (items, label) => items.length ? `
+    <div class="plan-section-hdr">${label}</div>
+    ${items.map(p=>{
+      const cat = catById(p.category);
+      return `<div class="plan-item-row">
+        <span class="plan-item-ico">${cat.e}</span>
+        <div class="plan-item-info">
+          <div class="plan-item-name">${p.name}</div>
+          <div class="plan-item-sub">${cat.n}</div>
+        </div>
+        <span class="plan-item-amt" style="color:${p.type==='inc'?'var(--green)':'var(--red)'}">${fmts(p.amount)}</span>
+        <button class="btn-del-sm" onclick="deletePlanItem('${p.id}')">✕</button>
+      </div>`;
+    }).join('')}` : '';
+  el.innerHTML = renderGroup(planInc,'💰 Доходы') + renderGroup(planExp,'💸 Расходы');
+}
+
+window.addPlanItem = async () => {
+  if (!familyId) { toast('Нет подключения'); return; }
+  const name   = document.getElementById('plan-name-input').value.trim();
+  const amount = parseFloat(document.getElementById('plan-amount-input').value)||0;
+  const cat    = document.getElementById('plan-cat-input').value;
+  if (!name)   { toast('Введите название'); return; }
+  if (!amount) { toast('Введите сумму'); return; }
+  const item = { id: Date.now().toString(36), name, amount, category: cat, type: planType };
+  const updated = [...monthlyPlan, item];
+  try {
+    await setDoc(doc(db,'families',familyId,'settings','config'),{monthlyPlan:updated},{merge:true});
+    document.getElementById('plan-name-input').value='';
+    document.getElementById('plan-amount-input').value='';
+    toast('Добавлено ✓');
+  } catch(e) { toast('Ошибка: '+e.message); }
+};
+
+window.deletePlanItem = async id => {
+  if (!familyId) return;
+  const updated = monthlyPlan.filter(p=>p.id!==id);
+  try {
+    await setDoc(doc(db,'families',familyId,'settings','config'),{monthlyPlan:updated},{merge:true});
+    toast('Удалено');
   } catch(e) { toast('Ошибка: '+e.message); }
 };
 
