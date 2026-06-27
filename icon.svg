@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0A1628"/>
+      <stop offset="60%" stop-color="#0D2548"/>
+      <stop offset="100%" stop-color="#062038"/>
+    </linearGradient>
+    <linearGradient id="card-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.18)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.07)"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34C759"/>
+      <stop offset="100%" stop-color="#30D158"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="rgba(0,0,0,0.4)"/>
+    </filter>
+    <filter id="glow">
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="rgba(52,199,89,0.6)"/>
+    </filter>
+  </defs>
+
+  <!-- Rounded background -->
+  <rect width="512" height="512" rx="110" fill="url(#bg)"/>
+
+  <!-- Blue glow top-left -->
+  <circle cx="100" cy="130" r="160" fill="rgba(0,122,255,0.10)"/>
+  <!-- Green glow bottom-right -->
+  <circle cx="400" cy="370" r="140" fill="rgba(52,199,89,0.07)"/>
+
+  <!-- Credit card shape -->
+  <rect x="80" y="148" width="352" height="216" rx="22" fill="url(#card-grad)" filter="url(#shadow)"/>
+  <rect x="80" y="148" width="352" height="216" rx="22" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="1"/>
+
+  <!-- Card top stripe -->
+  <rect x="80" y="148" width="352" height="62" rx="22" fill="rgba(255,255,255,0.07)"/>
+  <rect x="80" y="188" width="352" height="22" fill="rgba(255,255,255,0.07)"/>
+
+  <!-- Chip icon (rounded square) -->
+  <rect x="108" y="168" width="38" height="30" rx="7" fill="rgba(255,214,10,0.75)"/>
+  <line x1="118" y1="168" x2="118" y2="198" stroke="rgba(0,0,0,0.25)" stroke-width="1"/>
+  <line x1="128" y1="168" x2="128" y2="198" stroke="rgba(0,0,0,0.25)" stroke-width="1"/>
+  <line x1="138" y1="168" x2="138" y2="198" stroke="rgba(0,0,0,0.25)" stroke-width="1"/>
+  <line x1="108" y1="183" x2="146" y2="183" stroke="rgba(0,0,0,0.25)" stroke-width="1"/>
+
+  <!-- ₽ symbol -->
+  <text x="108" y="255"
+        font-family="-apple-system,SF Pro Display,Helvetica Neue,Arial,sans-serif"
+        font-size="28"
+        font-weight="600"
+        fill="rgba(255,255,255,0.5)">БАЛАНС</text>
+
+  <!-- Amount -->
+  <text x="108" y="312"
+        font-family="-apple-system,SF Pro Display,Helvetica Neue,Arial,sans-serif"
+        font-size="52"
+        font-weight="700"
+        fill="white"
+        letter-spacing="-2">₽ 85 400</text>
+
+  <!-- Progress bar bg -->
+  <rect x="108" y="338" width="296" height="8" rx="4" fill="rgba(255,255,255,0.12)"/>
+  <!-- Progress bar fill -->
+  <rect x="108" y="338" width="178" height="8" rx="4" fill="url(#bar)" filter="url(#glow)"/>
+
+  <!-- Three dots bottom-right of card -->
+  <circle cx="354" cy="174" r="8" fill="rgba(255,59,48,0.85)"/>
+  <circle cx="374" cy="174" r="8" fill="rgba(255,149,0,0.85)"/>
+  <circle cx="394" cy="174" r="8" fill="rgba(52,199,89,0.85)"/>
+</svg>

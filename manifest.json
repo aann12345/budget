@@ -6,8 +6,8 @@
   "scope": "/budget/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#6366F1",
-  "theme_color": "#6366F1",
+  "background_color": "#0A1628",
+  "theme_color": "#007AFF",
   "icons": [
     {
       "src": "/budget/icon.svg",
