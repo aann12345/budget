@@ -16,6 +16,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
 :root {
@@ -364,6 +365,78 @@ input,select{font-family:inherit}
 
 @media(max-width:360px){.cat-grid{grid-template-columns:repeat(3,1fr)}.bal-amount{font-size:32px}}
 
+/* ── ONBOARDING ──────────────────────────────────── */
+#onboarding{position:fixed;inset:0;background:linear-gradient(145deg,#312E81,#4F46E5 60%,#7C3AED);z-index:9997;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;overflow:hidden}
+#onboarding.show{display:flex}
+.ob-step{display:none;flex-direction:column;align-items:center;text-align:center;width:100%;max-width:360px}
+.ob-step.active{display:flex;animation:fadeUp .35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.ob-icon{font-size:64px;margin-bottom:16px}
+.ob-title{font-size:24px;font-weight:800;color:#fff;margin-bottom:8px}
+.ob-text{font-size:14px;color:rgba(255,255,255,.72);line-height:1.6;margin-bottom:24px}
+.ob-card{background:rgba(255,255,255,.12);backdrop-filter:blur(16px);border-radius:20px;padding:18px;width:100%;border:1px solid rgba(255,255,255,.18);margin-bottom:18px}
+.ob-field{width:100%;padding:12px 14px;border-radius:12px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#fff;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px}
+.ob-field:last-child{margin-bottom:0}
+.ob-field::placeholder{color:rgba(255,255,255,.45)}
+.ob-field:focus{border-color:rgba(255,255,255,.65)}
+.ob-btn{width:100%;padding:14px;background:#fff;color:#4F46E5;border-radius:13px;font-size:16px;font-weight:800;margin-bottom:10px;transition:all .2s;border:none;cursor:pointer;font-family:inherit}
+.ob-btn:active{transform:scale(.97)}
+.ob-skip{font-size:13px;color:rgba(255,255,255,.5);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:inherit}
+.ob-dots{display:flex;gap:8px;margin-bottom:24px}
+.ob-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .25s}
+.ob-dot.active{background:#fff;width:24px;border-radius:4px}
+
+/* ── DEBT BOOK ───────────────────────────────────── */
+.debt-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.debt-item:last-child{border:none}
+.debt-ico{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.debt-ico.given{background:var(--red-l)}
+.debt-ico.received{background:var(--green-l)}
+.debt-info{flex:1;min-width:0}
+.debt-name{font-size:13px;font-weight:700;color:var(--t1)}
+.debt-sub{font-size:11px;color:var(--t2);margin-top:1px}
+.debt-right{text-align:right;flex-shrink:0}
+.debt-amount{font-size:14px;font-weight:800}
+.debt-amount.given{color:var(--red)}
+.debt-amount.received{color:var(--green)}
+.debt-settle-btn{padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;background:var(--primary-l);color:var(--primary);display:block;margin-top:3px;cursor:pointer}
+.debt-overdue{font-size:10px;color:var(--red);font-weight:600;margin-top:2px}
+
+/* ── SAVINGS GOALS ───────────────────────────────── */
+.goal-item{background:var(--bg);border-radius:13px;padding:13px;border:2px solid var(--border);margin-bottom:10px}
+.goal-item:last-child{margin-bottom:0}
+.goal-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.goal-item-name{font-size:14px;font-weight:700;color:var(--t1)}
+.goal-item-pct{font-size:18px;font-weight:800;color:var(--violet)}
+.goal-bar-bg{height:7px;background:var(--border);border-radius:4px;overflow:hidden;margin:4px 0 5px}
+.goal-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#7C3AED,#4F46E5);transition:width .6s}
+.goal-item-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--t2)}
+.goal-item-dl{font-size:10px;color:var(--t3);margin-top:3px}
+.goal-item-actions{display:flex;gap:6px;margin-top:8px}
+.goal-add-btn{flex:1;padding:7px;background:var(--primary-l);color:var(--primary);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:inherit}
+.goal-del-btn{padding:7px 12px;background:var(--red-l);color:var(--red);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:inherit}
+
+/* ── MONTH COMPARISON ────────────────────────────── */
+.month-comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.comp-cell{background:var(--bg);border-radius:12px;padding:11px 13px}
+.comp-cell-val{font-size:16px;font-weight:800;margin-bottom:2px}
+.comp-cell-lbl{font-size:10px;color:var(--t2);font-weight:500}
+.comp-delta{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;display:inline-block;margin-top:4px}
+.comp-delta.up{background:var(--red-l);color:var(--red)}
+.comp-delta.down{background:var(--green-l);color:var(--green)}
+.comp-delta.flat{background:var(--bg);color:var(--t3);border:1px solid var(--border)}
+
+/* ── EXPORT XLSX BUTTON ──────────────────────────── */
+.hist-actions{display:flex;gap:8px;margin-bottom:10px}
+.hist-action-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 12px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit}
+.hist-action-btn.xlsx{background:var(--green-l);color:var(--green)}
+.hist-action-btn.csv{background:var(--primary-l);color:var(--primary)}
+
+/* ── SWIPE QUICK ACTION (improved) ──────────────── */
+.swipe-hint{position:absolute;right:0;top:0;bottom:0;width:72px;background:var(--red);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:20px;transform:translateX(100%);transition:transform .18s;border-radius:0 12px 12px 0;gap:2px;pointer-events:none}
+.swipe-hint .swipe-lbl{font-size:10px;font-weight:700;opacity:.9}
+.tx-row.swiped .swipe-hint{transform:translateX(0);pointer-events:all}
+
 /* PIN SCREEN */
 #pin-screen{position:fixed;inset:0;background:linear-gradient(145deg,#312E81,#4F46E5);z-index:9998;display:none;flex-direction:column;align-items:center;justify-content:center;gap:0}
 #pin-screen.show{display:flex}
@@ -589,6 +662,18 @@ input,select{font-family:inherit}
         <div id="plan-body"></div>
       </div>
 
+      <!-- Долги -->
+      <div class="card" id="debts-card" style="display:none">
+        <div class="card-h">📒 Долги <span class="card-link" onclick="openDebtModal()">+ Добавить</span></div>
+        <div id="debts-body"></div>
+      </div>
+
+      <!-- Цели накопления (новые) -->
+      <div class="card" id="savings-goals-card" style="display:none">
+        <div class="card-h">🎯 Цели накопления <span class="card-link" onclick="openSavingsGoalsModal()">Управлять</span></div>
+        <div id="savings-goals-body"></div>
+      </div>
+
       <!-- Регулярные платежи -->
       <div class="card" id="recurring-card" style="display:none">
         <div class="card-h">🔄 Регулярные платежи <span class="card-link" onclick="openRecurringSettings()">+</span></div>
@@ -643,6 +728,10 @@ input,select{font-family:inherit}
         <div class="stat-card"><div class="stat-v" id="s-bal">₽0</div><div class="stat-l">Баланс</div></div>
         <div class="stat-card"><div class="stat-v violet" id="s-save">₽0</div><div class="stat-l">В копилке всего</div></div>
       </div>
+      <div class="card" id="month-comp-card" style="display:none">
+        <div class="card-h">📊 Сравнение с прошлым месяцем</div>
+        <div id="month-comp-body"></div>
+      </div>
       <div class="card"><div class="card-h">Расходы по категориям</div><div class="chart-wrap"><canvas id="pie-chart"></canvas></div></div>
       <div class="card"><div class="card-h" id="bar-chart-title">Доходы vs Расходы (6 мес.)</div><div class="chart-wrap"><canvas id="bar-chart"></canvas></div></div>
       <div class="card" id="heatmap-card"><div class="card-h">🗓 Расходы по дням</div><div id="heatmap-wrap"></div><div class="hm-legend"><span>Меньше</span><div class="hm-legend-grad"></div><span>Больше</span></div></div>
@@ -661,6 +750,10 @@ input,select{font-family:inherit}
   <!-- ── HISTORY ─────────────────────────────────── -->
   <div id="view-history" class="view">
     <div class="content" style="margin-top:0;padding-top:14px">
+      <div class="hist-actions">
+        <button class="hist-action-btn xlsx" onclick="exportHistoryXlsx()"><span class="material-icons-round" style="font-size:17px">table_view</span> Excel</button>
+        <button class="hist-action-btn csv" onclick="exportHistoryCsv()"><span class="material-icons-round" style="font-size:17px">download</span> CSV</button>
+      </div>
       <div class="search-wrap"><span class="material-icons-round search-ico">search</span><input class="search-input" id="search-q" type="search" placeholder="Поиск операций…" oninput="renderHistory()"></div>
       <div class="amt-range-row">
         <input class="amt-range-input" id="amt-min" type="number" placeholder="Сумма от ₽" inputmode="decimal" oninput="renderHistory()">
@@ -810,7 +903,15 @@ input,select{font-family:inherit}
           <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
         </div>
         <div class="set-item" onclick="openSavingsSettings()">
-          <div class="set-item-l"><div class="set-ico">🐷</div><div><div class="set-nm">Копилка</div><div class="set-sub" id="savings-set-sub">Не настроена</div></div></div>
+          <div class="set-item-l"><div class="set-ico">🐷</div><div><div class="set-nm">Копилка (одна цель)</div><div class="set-sub" id="savings-set-sub">Не настроена</div></div></div>
+          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
+        </div>
+        <div class="set-item" onclick="openSavingsGoalsModal()">
+          <div class="set-item-l"><div class="set-ico" style="background:var(--violet-l)">🎯</div><div><div class="set-nm">Несколько целей</div><div class="set-sub" id="goals-set-sub">Не настроены</div></div></div>
+          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
+        </div>
+        <div class="set-item" onclick="openDebtModal()">
+          <div class="set-item-l"><div class="set-ico" style="background:var(--amber-l)">📒</div><div><div class="set-nm">Долговая книга</div><div class="set-sub" id="debt-set-sub">Нет записей</div></div></div>
           <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
         </div>
       </div>
@@ -1021,6 +1122,105 @@ input,select{font-family:inherit}
   </div>
 </div>
 
+<!-- ════════════ ONBOARDING WIZARD ════════════ -->
+<div id="onboarding">
+  <div class="ob-dots"><div class="ob-dot active" id="ob-dot-0"></div><div class="ob-dot" id="ob-dot-1"></div><div class="ob-dot" id="ob-dot-2"></div></div>
+
+  <div class="ob-step active" id="ob-step-0">
+    <div class="ob-icon">💰</div>
+    <div class="ob-title">Добро пожаловать!</div>
+    <div class="ob-text">Семейный бюджет поможет контролировать расходы, следить за зарплатой и копить на мечту.</div>
+    <div class="ob-card">
+      <input class="ob-field" id="ob-name" type="text" placeholder="Ваше имя (по желанию)" autocomplete="name">
+    </div>
+    <button class="ob-btn" onclick="obNext(1)">Вперёд →</button>
+    <button class="ob-skip" onclick="finishOnboarding()">Пропустить всё</button>
+  </div>
+
+  <div class="ob-step" id="ob-step-1">
+    <div class="ob-icon">📅</div>
+    <div class="ob-title">Дни зарплаты</div>
+    <div class="ob-text">Укажем даты выплат — приложение покажет сколько дней ждать и сколько ожидать.</div>
+    <div class="ob-card">
+      <input class="ob-field" id="ob-pay1" type="number" placeholder="1-я выплата (например, 15)" min="1" max="31" inputmode="numeric">
+      <input class="ob-field" id="ob-pay2" type="number" placeholder="2-я выплата (например, 30)" min="1" max="31" inputmode="numeric">
+      <input class="ob-field" id="ob-salary-total" type="number" placeholder="Зарплата в месяц (₽)" inputmode="numeric">
+    </div>
+    <button class="ob-btn" onclick="obNext(2)">Далее →</button>
+    <button class="ob-skip" onclick="obNext(2)">Пропустить шаг</button>
+  </div>
+
+  <div class="ob-step" id="ob-step-2">
+    <div class="ob-icon">🎉</div>
+    <div class="ob-title">Готово к старту!</div>
+    <div class="ob-text">Всё настроено. Добавьте первую операцию — кнопка + внизу экрана.</div>
+    <div class="ob-card" style="text-align:left">
+      <div style="font-size:13px;color:rgba(255,255,255,.85);line-height:1.8">
+        ✅ Категории расходов и доходов<br>
+        ✅ Виджет «До зарплаты»<br>
+        ✅ Аналитика и графики<br>
+        ✅ Совместный доступ для пары
+      </div>
+    </div>
+    <button class="ob-btn" onclick="finishOnboarding()">Начать вести бюджет →</button>
+  </div>
+</div>
+
+<!-- ════════════ DEBT MODAL ════════════ -->
+<div id="debt-modal" class="overlay" onclick="bgClose(event,'debt-modal')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">📒 Долговая книга</div>
+    <div id="debt-list-display"></div>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+      <div class="plan-type-toggle" style="margin-bottom:14px">
+        <button class="plan-type-btn active" id="debt-type-given-btn" onclick="setDebtType('given')">🤲 Мы дали</button>
+        <button class="plan-type-btn" id="debt-type-received-btn" onclick="setDebtType('received')">🤝 Нам должны</button>
+      </div>
+      <div class="f-row"><label class="f-label">Кто / Кому</label><input id="debt-name-input" type="text" class="f-input" placeholder="Имя или описание"></div>
+      <div class="f-row"><label class="f-label">Сумма (₽)</label><input id="debt-amount-input" type="number" class="f-input" placeholder="10 000" inputmode="decimal"></div>
+      <div class="f-row"><label class="f-label">Когда вернуть</label><input id="debt-due-input" type="date" class="f-input"></div>
+      <div class="f-row"><label class="f-label">Примечание</label><input id="debt-note-input" type="text" class="f-input" placeholder="Без процентов, до конца года…"></div>
+      <button class="btn-save" onclick="addDebt()">Добавить в книгу</button>
+    </div>
+    <button class="btn-cancel" onclick="closeOverlay('debt-modal')">Закрыть</button>
+  </div>
+</div>
+
+<!-- ════════════ SAVINGS GOALS MODAL ════════════ -->
+<div id="savings-goals-modal" class="overlay" onclick="bgClose(event,'savings-goals-modal')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🎯 Цели накопления</div>
+    <div id="goals-list-display"></div>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+      <div class="f-row"><label class="f-label">Название цели</label><input id="goal-name-input" type="text" class="f-input" placeholder="Отпуск, iPhone, ремонт…"></div>
+      <div class="f-row"><label class="f-label">Целевая сумма (₽)</label><input id="goal-target-input" type="number" class="f-input" placeholder="500 000" inputmode="decimal"></div>
+      <div class="f-row"><label class="f-label">Дедлайн (необязательно)</label><input id="goal-deadline-input" type="date" class="f-input"></div>
+      <button class="btn-save" onclick="addSavingsGoalNew()">+ Добавить цель</button>
+    </div>
+    <button class="btn-cancel" onclick="closeOverlay('savings-goals-modal')">Закрыть</button>
+  </div>
+</div>
+
+<!-- ════════════ GOAL ADD MONEY MODAL ════════════ -->
+<div id="goal-add-modal" class="overlay" onclick="bgClose(event,'goal-add-modal')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="goal-add-title">🐷 Пополнить цель</div>
+    <div class="amt-wrap"><span class="amt-ccy">₽</span><input id="goal-add-amt" type="number" class="amt-input" placeholder="0" inputmode="decimal" min="0"></div>
+    <div class="quick-row">
+      <button class="quick-btn" onclick="gqAmt(1000)">+1 000</button>
+      <button class="quick-btn" onclick="gqAmt(5000)">+5 000</button>
+      <button class="quick-btn" onclick="gqAmt(10000)">+10 000</button>
+      <button class="quick-btn" onclick="gqAmt(50000)">+50 000</button>
+    </div>
+    <div class="f-row"><label class="f-label">Дата</label><input id="goal-add-date" type="date" class="f-input"></div>
+    <button class="btn-save" onclick="confirmGoalAdd()">Пополнить</button>
+    <button class="btn-cancel" onclick="closeOverlay('goal-add-modal')">Отмена</button>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script type="module">
@@ -1133,6 +1333,10 @@ let paydayDays = [];        // [15, 30] — два дня зарплаты
 let monthlySalary = 0;      // общая сумма зарплаты в месяц
 let recurringList = []; // [{id, name, amount, day, category, account}]
 let monthlyPlan = [];   // [{id, name, amount, category, type}]
+let debtList = [];      // [{id, name, amount, direction, dueDate, note, settled}]
+let savingsGoals = [];  // [{id, name, target, deadline}]
+let currentDebtType = 'given'; // given | received
+let currentGoalId = null; // для окна пополнения цели
 
 /* ── DARK MODE ───────────────────────────────────── */
 (function initDarkMode() {
@@ -1363,6 +1567,10 @@ onAuthStateChanged(auth, async user => {
     subscribeTxs();
     subscribeSettings();
     showPinIfNeeded();
+    // Show onboarding for new users (no previous visit)
+    if (!localStorage.getItem('onboardingDone') && !localStorage.getItem('pin')) {
+      setTimeout(() => showOnboarding(), 600);
+    }
   } else {
     me=null; familyId=null; txs=[];
     if (unsub){unsub();unsub=null;} if (settingsUnsub){settingsUnsub();settingsUnsub=null;}
@@ -1397,9 +1605,12 @@ function subscribeSettings() {
       monthlySalary    = d.monthlySalary    || 0;
       recurringList    = d.recurringList    || [];
       monthlyPlan      = d.monthlyPlan      || [];
+      debtList         = d.debtList         || [];
+      savingsGoals     = d.savingsGoals     || [];
     } else {
       budgets = {}; savingsGoal = {name:'',target:0,deadline:''}; customCategories = [];
-      accountBalances = {card_a:0,card_d:0,cash:0}; paydayDays = []; monthlySalary = 0; recurringList = []; monthlyPlan = [];
+      accountBalances = {card_a:0,card_d:0,cash:0}; paydayDays = []; monthlySalary = 0;
+      recurringList = []; monthlyPlan = []; debtList = []; savingsGoals = [];
     }
     renderAll();
     updateNotifSettingsLabel();
@@ -1432,6 +1643,8 @@ function renderAll() {
   renderMonthlyPlan(m);
   renderPayday(m);
   renderRecurring(m);
+  renderDebts();
+  renderSavingsGoalsCard();
   updateSettingsLabels();
   if (document.getElementById('view-analytics').classList.contains('active')) {
     renderAnalytics(getPeriodTxs());
@@ -1497,6 +1710,7 @@ function txHTML(t) {
       <div class="tx-meta">${cat.n} · ${ds}${by}</div>
     </div>
     <div class="tx-amt ${t.type}">${sign}${fmt(t.amount)}</div>
+    <div class="swipe-hint" onclick="quickDeleteTx('${t.id}')">🗑<span class="swipe-lbl">Удалить</span></div>
   </div>`;
 }
 
@@ -1573,29 +1787,47 @@ function renderHistory() {
   initSwipe(el);
 }
 
-/* ── SWIPE TO EDIT ───────────────────────────────── */
+/* ── SWIPE TO DELETE ─────────────────────────────── */
+window.quickDeleteTx = async id => {
+  if (!id || !confirm('Удалить операцию?')) return;
+  if (!familyId) { toast('Ошибка: нет данных семьи'); return; }
+  try {
+    await deleteDoc(doc(db,'families',familyId,'transactions',id));
+    toast('Удалено');
+  } catch(e) { toast('Ошибка: '+(e.message||e.code)); }
+};
+
 function initSwipe(container) {
   if (!container) return;
-  let startX = 0, startY = 0, moved = false;
+  let startX = 0, startY = 0, currentRow = null;
 
   container.addEventListener('touchstart', e => {
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
-    moved = false;
+    currentRow = e.target.closest('.tx-row');
+    // Close any open swipe hints
+    container.querySelectorAll('.tx-row.swiped').forEach(r => { if(r !== currentRow) r.classList.remove('swiped'); });
   }, {passive:true});
 
   container.addEventListener('touchmove', e => {
-    moved = true;
+    if (!currentRow) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    if (Math.abs(dx) > 20 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < -30) currentRow.classList.add('swiped');
+      else if (dx > 10) currentRow.classList.remove('swiped');
+    }
   }, {passive:true});
 
   container.addEventListener('touchend', e => {
-    if (!moved) return;
+    if (!currentRow) return;
     const dx = e.changedTouches[0].clientX - startX;
     const dy = e.changedTouches[0].clientY - startY;
-    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5 && dx < 0) {
-      const row = e.target.closest('.tx-row');
-      if (row && row.dataset.id) { window.openEdit(row.dataset.id); }
-    }
+    // Short tap on non-swiped → open edit
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) { currentRow = null; return; }
+    // Swipe right → close hint
+    if (dx > 30) { currentRow.classList.remove('swiped'); }
+    currentRow = null;
   }, {passive:true});
 }
 
@@ -1754,6 +1986,33 @@ function renderAnalytics(m) {
   document.getElementById('s-inc').textContent = fmt(inc);
   document.getElementById('s-exp').textContent = fmt(exp);
   const sbal=document.getElementById('s-bal'); sbal.textContent=fmts(bal); sbal.className='stat-v '+(bal<0?'red':'green');
+
+  // Month-to-month comparison (only for 'month' period)
+  const compCard = document.getElementById('month-comp-card');
+  if (analyticsPeriod === 'month' && compCard) {
+    const prevStart = new Date(curMonth); prevStart.setMonth(prevStart.getMonth()-1);
+    const prevEnd = new Date(curMonth);
+    const prevM = txs.filter(t=>{ const d=toDate(t.date); return d>=prevStart && d<prevEnd; });
+    const prevInc = prevM.filter(t=>t.type==='inc').reduce((s,t)=>s+t.amount,0);
+    const prevExp = prevM.filter(t=>t.type==='exp').reduce((s,t)=>s+t.amount,0);
+    if (prevInc > 0 || prevExp > 0) {
+      compCard.style.display='block';
+      const delta = (cur, prev) => {
+        if (!prev) return '<span class="comp-delta flat">нет данных</span>';
+        const pct = Math.round((cur-prev)/prev*100);
+        const cls = pct>0?'up':pct<0?'down':'flat';
+        const sign = pct>0?'+':'';
+        return `<span class="comp-delta ${cls}">${sign}${pct}%</span>`;
+      };
+      document.getElementById('month-comp-body').innerHTML = `
+        <div class="month-comp-grid">
+          <div class="comp-cell"><div class="comp-cell-val green">${fmt(inc)}</div><div class="comp-cell-lbl">Доходы сейчас</div>${delta(inc,prevInc)}</div>
+          <div class="comp-cell"><div class="comp-cell-val" style="color:var(--t2)">${fmt(prevInc)}</div><div class="comp-cell-lbl">Доходы прошлый мес.</div></div>
+          <div class="comp-cell"><div class="comp-cell-val red">${fmt(exp)}</div><div class="comp-cell-lbl">Расходы сейчас</div>${delta(exp,prevExp)}</div>
+          <div class="comp-cell"><div class="comp-cell-val" style="color:var(--t2)">${fmt(prevExp)}</div><div class="comp-cell-lbl">Расходы прошлый мес.</div></div>
+        </div>`;
+    } else { compCard.style.display='none'; }
+  } else if (compCard) { compCard.style.display='none'; }
 
   // Pie
   const bycat={};
@@ -2267,6 +2526,13 @@ function updateSettingsLabels() {
   const hasBudgets = Object.keys(budgets).some(k=>budgets[k]>0);
   document.getElementById('budget-set-sub').textContent    = hasBudgets ? Object.keys(budgets).filter(k=>budgets[k]>0).length+' категорий' : 'Не настроены';
   document.getElementById('savings-set-sub').textContent   = savingsGoal.name ? savingsGoal.name+' — '+fmt(savingsGoal.target) : 'Не настроена';
+  const goalsSub = document.getElementById('goals-set-sub');
+  if (goalsSub) goalsSub.textContent = savingsGoals.length ? savingsGoals.length+' '+(savingsGoals.length===1?'цель':'целей') : 'Не настроены';
+  const debtSub = document.getElementById('debt-set-sub');
+  if (debtSub) {
+    const open = debtList.filter(d=>!d.settled).length;
+    debtSub.textContent = open ? open+' открытых долгов' : debtList.length ? 'Все закрыты ✓' : 'Нет записей';
+  }
   document.getElementById('custom-cats-sub').textContent   = customCategories.length ? customCategories.length+' категорий' : 'Не добавлены';
   const hasPIN = !!localStorage.getItem('pin');
   const pinSub = document.getElementById('pin-set-sub');
@@ -3118,6 +3384,345 @@ function updateNotifSettingsLabel() {
   const map = { granted:'Включены ✓', denied:'Заблокированы в браузере', default:'Не настроены' };
   sub.textContent = map[Notification.permission] || 'Не настроены';
 }
+
+/* ══════════════════════════════════════════════════
+   ОНБОРДИНГ
+   ══════════════════════════════════════════════════ */
+let _obStep = 0;
+
+function showOnboarding() {
+  document.getElementById('onboarding').classList.add('show');
+  _obStep = 0;
+  updateObUI(0);
+}
+
+function updateObUI(step) {
+  document.querySelectorAll('.ob-step').forEach((s,i)=>{
+    s.classList.toggle('active', i===step);
+  });
+  document.querySelectorAll('.ob-dot').forEach((d,i)=>{
+    d.classList.toggle('active', i===step);
+  });
+}
+
+window.obNext = async step => {
+  // Save data from current step before advancing
+  if (_obStep === 1) {
+    // Save payday settings if filled
+    const d1 = parseInt(document.getElementById('ob-pay1')?.value)||0;
+    const d2 = parseInt(document.getElementById('ob-pay2')?.value)||0;
+    const sal = parseFloat(document.getElementById('ob-salary-total')?.value)||0;
+    if ((d1 || d2) && familyId) {
+      const days = [d1,d2].filter(Boolean).sort((a,b)=>a-b);
+      try {
+        await setDoc(doc(db,'families',familyId,'settings','config'),
+          {paydayDays:days, monthlySalary:sal},{merge:true});
+      } catch(e) { /* silent */ }
+    }
+  }
+  _obStep = step;
+  updateObUI(step);
+};
+
+window.finishOnboarding = () => {
+  localStorage.setItem('onboardingDone','1');
+  document.getElementById('onboarding').classList.remove('show');
+  // If user filled name, it's already set from auth
+  toast('Добро пожаловать! 🎉 Нажмите + чтобы добавить первую операцию.');
+};
+
+/* ══════════════════════════════════════════════════
+   ДОЛГОВАЯ КНИГА
+   ══════════════════════════════════════════════════ */
+window.openDebtModal = () => {
+  renderDebtListDisplay();
+  document.getElementById('debt-name-input').value='';
+  document.getElementById('debt-amount-input').value='';
+  document.getElementById('debt-due-input').value='';
+  document.getElementById('debt-note-input').value='';
+  currentDebtType = 'given';
+  document.getElementById('debt-type-given-btn').classList.add('active');
+  document.getElementById('debt-type-received-btn').classList.remove('active');
+  openOverlay('debt-modal');
+};
+
+window.setDebtType = type => {
+  currentDebtType = type;
+  document.getElementById('debt-type-given-btn').classList.toggle('active', type==='given');
+  document.getElementById('debt-type-received-btn').classList.toggle('active', type==='received');
+};
+
+function renderDebtListDisplay() {
+  const el = document.getElementById('debt-list-display');
+  if (!el) return;
+  const open = debtList.filter(d=>!d.settled);
+  const closed = debtList.filter(d=>d.settled).slice(0,3);
+  if (!debtList.length) {
+    el.innerHTML='<p style="text-align:center;color:var(--t2);font-size:13px;padding:10px 0">Долгов нет. Добавьте первый.</p>';
+    return;
+  }
+  const renderItem = d => {
+    const isOverdue = d.dueDate && !d.settled && new Date(d.dueDate) < new Date();
+    const due = d.dueDate ? new Date(d.dueDate).toLocaleDateString('ru-RU',{day:'numeric',month:'short'}) : '';
+    return `<div class="debt-item" style="${d.settled?'opacity:.5':''}">
+      <div class="debt-ico ${d.direction}">${d.direction==='given'?'🤲':'🤝'}</div>
+      <div class="debt-info">
+        <div class="debt-name">${d.name}</div>
+        <div class="debt-sub">${d.direction==='given'?'Мы дали':'Нам должны'}${due?' · до '+due:''}${d.note?' · '+d.note:''}</div>
+        ${isOverdue?'<div class="debt-overdue">⚠️ Просрочено!</div>':''}
+      </div>
+      <div class="debt-right">
+        <div class="debt-amount ${d.direction}">${d.direction==='given'?'−':'+'} ${fmt(d.amount)}</div>
+        ${!d.settled?`<button class="debt-settle-btn" onclick="settleDebt('${d.id}')">✓ Закрыть</button>`:'<div style="font-size:10px;color:var(--green);margin-top:3px">Закрыт ✓</div>'}
+      </div>
+    </div>`;
+  };
+  el.innerHTML = (open.length ? open.map(renderItem).join('') : '') +
+    (closed.length ? `<div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;padding:8px 0 4px">Закрытые</div>${closed.map(renderItem).join('')}` : '');
+}
+
+window.addDebt = async () => {
+  if (!familyId) { toast('Нет подключения'); return; }
+  const name   = document.getElementById('debt-name-input').value.trim();
+  const amount = parseFloat(document.getElementById('debt-amount-input').value)||0;
+  const due    = document.getElementById('debt-due-input').value;
+  const note   = document.getElementById('debt-note-input').value.trim();
+  if (!name)   { toast('Введите имя'); return; }
+  if (!amount) { toast('Введите сумму'); return; }
+  const item = { id:'debt_'+Date.now(), name, amount, direction:currentDebtType, dueDate:due, note, settled:false, createdAt:Date.now() };
+  const updated = [...debtList, item];
+  try {
+    await setDoc(doc(db,'families',familyId,'settings','config'),{debtList:updated},{merge:true});
+    document.getElementById('debt-name-input').value='';
+    document.getElementById('debt-amount-input').value='';
+    document.getElementById('debt-due-input').value='';
+    document.getElementById('debt-note-input').value='';
+    toast('Долг добавлен ✓');
+    renderDebtListDisplay();
+  } catch(e) { toast('Ошибка: '+e.message); }
+};
+
+window.settleDebt = async id => {
+  if (!familyId) return;
+  const updated = debtList.map(d => d.id===id ? {...d, settled:true, settledAt:Date.now()} : d);
+  try {
+    await setDoc(doc(db,'families',familyId,'settings','config'),{debtList:updated},{merge:true});
+    toast('Долг закрыт ✓');
+    renderDebtListDisplay();
+  } catch(e) { toast('Ошибка: '+e.message); }
+};
+
+function renderDebts() {
+  const card = document.getElementById('debts-card');
+  const body = document.getElementById('debts-body');
+  if (!card || !body) return;
+  const open = debtList.filter(d=>!d.settled);
+  if (!open.length) { card.style.display='none'; return; }
+  card.style.display='block';
+  const now = new Date();
+  body.innerHTML = open.slice(0,5).map(d=>{
+    const isOverdue = d.dueDate && new Date(d.dueDate) < now;
+    const due = d.dueDate ? new Date(d.dueDate).toLocaleDateString('ru-RU',{day:'numeric',month:'short'}) : '';
+    return `<div class="debt-item">
+      <div class="debt-ico ${d.direction}">${d.direction==='given'?'🤲':'🤝'}</div>
+      <div class="debt-info">
+        <div class="debt-name">${d.name}</div>
+        <div class="debt-sub">${d.direction==='given'?'Мы дали':'Нам должны'}${due?' · '+due:''}</div>
+        ${isOverdue?'<div class="debt-overdue">⚠️ Просрочено</div>':''}
+      </div>
+      <div class="debt-right">
+        <div class="debt-amount ${d.direction}">${fmt(d.amount)}</div>
+        <button class="debt-settle-btn" onclick="settleDebt('${d.id}')">Закрыть</button>
+      </div>
+    </div>`;
+  }).join('');
+  if (open.length > 5) body.innerHTML += `<div style="text-align:center;font-size:12px;color:var(--t2);padding-top:8px">Ещё ${open.length-5} долгов — <span style="color:var(--primary);cursor:pointer" onclick="openDebtModal()">посмотреть все</span></div>`;
+}
+
+/* ══════════════════════════════════════════════════
+   НЕСКОЛЬКО ЦЕЛЕЙ НАКОПЛЕНИЯ
+   ══════════════════════════════════════════════════ */
+window.openSavingsGoalsModal = () => {
+  renderGoalsList();
+  document.getElementById('goal-name-input').value='';
+  document.getElementById('goal-target-input').value='';
+  document.getElementById('goal-deadline-input').value='';
+  openOverlay('savings-goals-modal');
+};
+
+function renderGoalsList() {
+  const el = document.getElementById('goals-list-display');
+  if (!el) return;
+  if (!savingsGoals.length) {
+    el.innerHTML='<p style="text-align:center;color:var(--t2);font-size:13px;padding:10px 0">Нет целей. Добавьте первую!</p>';
+    return;
+  }
+  el.innerHTML = savingsGoals.map(g => {
+    const saved = txs.filter(t=>t.type==='savings'&&t.goalId===g.id).reduce((s,t)=>s+t.amount,0);
+    const pct = g.target ? Math.min(100,Math.round(saved/g.target*100)) : 0;
+    const dl = g.deadline ? new Date(g.deadline) : null;
+    const now = new Date();
+    const monthsLeft = dl ? Math.max(0,(dl.getFullYear()-now.getFullYear())*12+(dl.getMonth()-now.getMonth())) : null;
+    const perMonth = (monthsLeft && g.target > saved) ? fmt((g.target-saved)/monthsLeft)+'/мес' : null;
+    const dlStr = dl ? dl.toLocaleDateString('ru-RU',{month:'long',year:'numeric'}) : '';
+    return `<div class="goal-item">
+      <div class="goal-item-header">
+        <div class="goal-item-name">${g.name}</div>
+        <div class="goal-item-pct">${pct}%</div>
+      </div>
+      <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%"></div></div>
+      <div class="goal-item-meta">
+        <span>${fmt(saved)} из ${fmt(g.target)}</span>
+        ${perMonth ? `<span>${perMonth} к дедлайну</span>` : ''}
+      </div>
+      ${dlStr ? `<div class="goal-item-dl">📅 Дедлайн: ${dlStr}</div>` : ''}
+      <div class="goal-item-actions">
+        <button class="goal-add-btn" onclick="openGoalAdd('${g.id}','${g.name}')">+ Пополнить</button>
+        <button class="goal-del-btn" onclick="deleteSavingsGoalItem('${g.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.addSavingsGoalNew = async () => {
+  if (!familyId) { toast('Нет подключения'); return; }
+  const name     = document.getElementById('goal-name-input').value.trim();
+  const target   = parseFloat(document.getElementById('goal-target-input').value)||0;
+  const deadline = document.getElementById('goal-deadline-input').value;
+  if (!name)   { toast('Введите название'); return; }
+  if (!target) { toast('Введите целевую сумму'); return; }
+  const goal = { id:'goal_'+Date.now(), name, target, deadline };
+  const updated = [...savingsGoals, goal];
+  try {
+    await setDoc(doc(db,'families',familyId,'settings','config'),{savingsGoals:updated},{merge:true});
+    document.getElementById('goal-name-input').value='';
+    document.getElementById('goal-target-input').value='';
+    document.getElementById('goal-deadline-input').value='';
+    toast('Цель добавлена ✓');
+    renderGoalsList();
+  } catch(e) { toast('Ошибка: '+e.message); }
+};
+
+window.deleteSavingsGoalItem = async id => {
+  if (!familyId || !confirm('Удалить цель? Транзакции не удалятся.')) return;
+  const updated = savingsGoals.filter(g=>g.id!==id);
+  try {
+    await setDoc(doc(db,'families',familyId,'settings','config'),{savingsGoals:updated},{merge:true});
+    toast('Цель удалена');
+    renderGoalsList();
+  } catch(e) { toast('Ошибка: '+e.message); }
+};
+
+window.openGoalAdd = (goalId, goalName) => {
+  currentGoalId = goalId;
+  document.getElementById('goal-add-title').textContent = '🐷 ' + goalName;
+  document.getElementById('goal-add-amt').value = '';
+  document.getElementById('goal-add-date').value = today();
+  closeOverlay('savings-goals-modal');
+  openOverlay('goal-add-modal');
+};
+
+window.gqAmt = val => {
+  const el = document.getElementById('goal-add-amt');
+  if (!el) return;
+  el.value = (parseFloat(el.value)||0) + val;
+};
+
+window.confirmGoalAdd = async () => {
+  const amt = parseFloat(document.getElementById('goal-add-amt').value)||0;
+  const dateStr = document.getElementById('goal-add-date').value;
+  if (!amt || amt <= 0) { toast('Введите сумму'); return; }
+  if (!familyId || !me) { toast('Нет подключения'); return; }
+  let date;
+  if (dateStr) { const p=dateStr.split('-').map(Number); date=Timestamp.fromDate(new Date(p[0],p[1]-1,p[2],12)); }
+  else { date = Timestamp.now(); }
+  try {
+    await addDoc(collection(db,'families',familyId,'transactions'), {
+      type:'savings', amount:amt, category:'piggy', goalId:currentGoalId,
+      description:'Накопления', date, createdByName:me.displayName||'Участник',
+      createdAt:Timestamp.now(), createdBy:me.uid, account:'card_a'
+    });
+    toast('Пополнено ✓');
+    closeOverlay('goal-add-modal');
+    openOverlay('savings-goals-modal');
+    setTimeout(renderGoalsList, 500);
+  } catch(e) { toast('Ошибка: '+e.message); }
+};
+
+function renderSavingsGoalsCard() {
+  const card = document.getElementById('savings-goals-card');
+  const body = document.getElementById('savings-goals-body');
+  if (!card || !body) return;
+  if (!savingsGoals.length) { card.style.display='none'; return; }
+  card.style.display='block';
+  body.innerHTML = savingsGoals.map(g => {
+    const saved = txs.filter(t=>t.type==='savings'&&t.goalId===g.id).reduce((s,t)=>s+t.amount,0);
+    const pct = g.target ? Math.min(100,Math.round(saved/g.target*100)) : 0;
+    return `<div class="goal-item" style="margin-bottom:8px">
+      <div class="goal-item-header">
+        <div class="goal-item-name">${g.name}</div>
+        <div class="goal-item-pct">${pct}%</div>
+      </div>
+      <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%"></div></div>
+      <div class="goal-item-meta"><span>${fmt(saved)}</span><span>из ${fmt(g.target)}</span></div>
+      <button class="goal-add-btn" style="margin-top:8px;width:100%" onclick="openGoalAdd('${g.id}','${g.name}')">+ Пополнить</button>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════
+   ЭКСПОРТ: XLSX + CSV из ИСТОРИИ
+   ══════════════════════════════════════════════════ */
+function getFilteredTxs() {
+  const q  = (document.getElementById('search-q')?.value||'').toLowerCase();
+  const amtMin = parseFloat(document.getElementById('amt-min')?.value)||0;
+  const amtMax = parseFloat(document.getElementById('amt-max')?.value)||Infinity;
+  const [rangeFrom, rangeTo] = getHistoryRange();
+  return txs.filter(t=>{
+    const d = toDate(t.date);
+    if (d < rangeFrom || d > rangeTo) return false;
+    if (filterType!=='all' && t.type!==filterType) return false;
+    if (filterAccount!=='all') {
+      const acc = t.account || (t.payMethod==='cash_pay'?'cash':'card_a');
+      if (acc !== filterAccount) return false;
+    }
+    if (amtMin > 0 && t.amount < amtMin) return false;
+    if (amtMax < Infinity && t.amount > amtMax) return false;
+    if (q) { const cat=catById(t.category); return ((t.description||'')+(cat.n||'')).toLowerCase().includes(q); }
+    return true;
+  });
+}
+
+window.exportHistoryXlsx = () => {
+  const list = getFilteredTxs();
+  if (!list.length) { toast('Нет данных для экспорта'); return; }
+  if (!window.XLSX) { toast('Загрузка Excel…'); return; }
+  const rows = list.map(t => ({
+    'Дата': toDate(t.date).toLocaleDateString('ru-RU'),
+    'Тип': t.type==='inc'?'Доход':t.type==='exp'?'Расход':t.type==='savings'?'Копилка':'Перевод',
+    'Категория': catById(t.category).n,
+    'Сумма': t.amount,
+    'Счёт': t.account==='card_d'?'Карта Д':t.account==='cash'?'Наличные':'Карта А',
+    'Комментарий': t.description||'',
+    'Кто': t.createdByName||'',
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Транзакции');
+  // Column widths
+  ws['!cols'] = [{wch:12},{wch:10},{wch:16},{wch:12},{wch:12},{wch:24},{wch:14}];
+  const fname = 'бюджет_' + new Date().toLocaleDateString('ru-RU').replace(/\./g,'-') + '.xlsx';
+  XLSX.writeFile(wb, fname);
+  toast('Excel готов ✓');
+};
+
+window.exportHistoryCsv = () => {
+  const list = getFilteredTxs();
+  if (!list.length) { toast('Нет данных'); return; }
+  // reuse existing dlCSV
+  const periodName = historyPeriod === 'all' ? 'все' : historyPeriod === 'month' ? curMonth.toLocaleDateString('ru-RU',{month:'long',year:'numeric'}) : historyPeriod;
+  dlCSV(list, 'бюджет_' + periodName + '.csv');
+};
 
 </script>
 </body>
