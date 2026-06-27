@@ -699,6 +699,14 @@ input,select{font-family:inherit}
       </div>
 
       <div class="set-section">
+        <div class="set-section-title">Уведомления</div>
+        <div class="set-item" onclick="requestNotifPermission()">
+          <div class="set-item-l"><div class="set-ico">🔔</div><div><div class="set-nm">Уведомления</div><div class="set-sub" id="notif-set-sub">Не настроены</div></div></div>
+          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
+        </div>
+      </div>
+
+      <div class="set-section">
         <div class="set-section-title">Внешний вид</div>
         <div class="set-item" onclick="toggleDark()">
           <div class="set-item-l"><div class="set-ico">🌙</div><div><div class="set-nm" id="dark-toggle-nm">Тёмная тема</div><div class="set-sub" id="dark-toggle-sub">Выключена</div></div></div>
@@ -1264,6 +1272,12 @@ function subscribeSettings() {
       accountBalances = {card_a:0,card_d:0,cash:0}; paydayDays = []; monthlySalary = 0; recurringList = []; monthlyPlan = [];
     }
     renderAll();
+    updateNotifSettingsLabel();
+    // Run notification checks once per session after settings load
+    if (!window._notifChecked) {
+      window._notifChecked = true;
+      setTimeout(runNotificationChecks, 2000);
+    }
   });
 }
 
@@ -1960,6 +1974,7 @@ window.saveTx = async () => {
       await addDoc(collection(db,'families',familyId,'transactions'), data);
       updateStreak();
       toast('Сохранено ✓');
+      if (data.type === 'exp') checkLimitAfterSave();
     }
     closeOverlay('add-modal');
   } catch(e) { console.error(e); toast('Ошибка сохранения: '+(e.message||e.code||e)); }
@@ -2692,6 +2707,218 @@ window.openOverlay=openOverlay;
 window.closeOverlay=closeOverlay;
 window.toast=toast;
 window.renderHistory=renderHistory;
+
+/* ══════════════════════════════════════════════════
+   УВЕДОМЛЕНИЯ
+   ══════════════════════════════════════════════════ */
+
+// ── Service Worker Registration ───────────────────
+(function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('/budget/sw.js', {scope:'/budget/'})
+    .then(reg => {
+      // Register periodic background sync for Android Chrome
+      if ('periodicSync' in reg) {
+        reg.periodicSync.register('budget-check', {minInterval: 6 * 60 * 60 * 1000})
+          .catch(()=>{/* may require user engagement */});
+      }
+    })
+    .catch(err => console.warn('[SW]', err));
+})();
+
+// ── Notification helpers ──────────────────────────
+let swReg = null;
+async function getSW() {
+  if (swReg) return swReg;
+  if (!('serviceWorker' in navigator)) return null;
+  swReg = await navigator.serviceWorker.ready.catch(()=>null);
+  return swReg;
+}
+
+async function pushNotif(title, body, tag, renotify = false) {
+  if (Notification.permission !== 'granted') return;
+  const sw = await getSW();
+  if (sw?.active) {
+    sw.active.postMessage({type:'NOTIFY', title, body, tag, renotify});
+  } else {
+    new Notification(title, {body, tag, icon:'/budget/icon-192.png'});
+  }
+}
+
+// ── Guard: show each notification tag max once per day ──
+function notifShownToday(tag) {
+  const key = 'notif_shown_' + tag;
+  const last = localStorage.getItem(key);
+  const today = new Date().toDateString();
+  if (last === today) return true;
+  localStorage.setItem(key, today);
+  return false;
+}
+
+// ── 1. Payment reminders (from recurringList) ─────
+async function checkPaymentReminders() {
+  if (!recurringList.length) return;
+  const now  = new Date();
+  const mTxs = monthTxs();
+  const y = now.getFullYear(), m = now.getMonth();
+
+  for (const r of recurringList) {
+    const payDay  = r.day;
+    const today   = now.getDate();
+    const tomorrow = today + 1;
+
+    // Is already paid this month?
+    const paid = mTxs.some(t => t.recurringId === r.id
+      && toDate(t.date).getMonth() === m
+      && toDate(t.date).getFullYear() === y);
+
+    // TODAY
+    if (today === payDay) {
+      const tag = `pay_today_${r.id}`;
+      if (!notifShownToday(tag)) {
+        if (paid) {
+          await pushNotif(
+            `${catById(r.category||'other_e').e} ${r.name} ✅ уже оплачено`,
+            'Молодцы — один пункт с плеч! Всё под контролем.',
+            tag
+          );
+        } else {
+          await pushNotif(
+            `${catById(r.category||'other_e').e} Сегодня: ${r.name} · ${fmt(r.amount)}`,
+            'Не забудьте провести платёж. Откройте приложение — там кнопка «Оплатить».',
+            tag
+          );
+        }
+      }
+    }
+
+    // TOMORROW (skip if already paid)
+    if (tomorrow === payDay && !paid) {
+      const tag = `pay_tomorrow_${r.id}`;
+      if (!notifShownToday(tag)) {
+        await pushNotif(
+          `Завтра — ${r.name} · ${fmt(r.amount)} 💳`,
+          'Подготовьтесь заранее — проверьте баланс счёта.',
+          tag
+        );
+      }
+    }
+  }
+}
+
+// ── 2. Data entry reminders ───────────────────────
+const ENTRY_TEXTS = [
+  null,                          // 0
+  null,                          // 1
+  {                              // 2
+    title: '👀 Куда ушли деньги за эти дни?',
+    body:  'Пара минут — и бюджет снова под контролем.',
+  },
+  {                              // 3
+    title: '💸 3 дня без бюджета',
+    body:  'Деньги уходят, следы теряются. Откройте — займёт минуту.',
+  },
+  {                              // 4
+    title: '🌪️ 4 дня тишины в бюджете',
+    body:  'Месяц летит быстро. Не дайте деньгам уйти незамеченными.',
+  },
+];
+
+async function checkEntryReminder() {
+  if (!txs.length) return;
+  // Find the latest transaction date
+  const lastDate = txs.reduce((latest, t) => {
+    const d = toDate(t.date);
+    return d > latest ? d : latest;
+  }, new Date(0));
+
+  const daysSince = Math.floor((Date.now() - lastDate.getTime()) / 864e5);
+  if (daysSince < 2) return; // entered data recently — all good
+
+  const tag = 'entry_reminder';
+  if (notifShownToday(tag)) return; // already reminded today
+
+  const textIdx = Math.min(daysSince, ENTRY_TEXTS.length - 1);
+  const txt = ENTRY_TEXTS[textIdx] || {
+    title: `📭 Бюджет ждёт — уже ${daysSince} дней без записей`,
+    body:  'Не дайте месяцу улететь незамеченным. Давайте наверстаем?',
+  };
+  await pushNotif(txt.title, txt.body, tag);
+}
+
+// ── 3. Budget limit alerts ────────────────────────
+async function checkBudgetLimits(m) {
+  if (!Object.keys(budgets).some(k => budgets[k] > 0)) return;
+
+  for (const cat of CAT_EXP) {
+    const limit = budgets[cat.id];
+    if (!limit) continue;
+
+    const spent = m.filter(t => t.type === 'exp' && t.category === cat.id)
+                   .reduce((s,t) => s+t.amount, 0);
+    const pct = spent / limit;
+    const tag = `limit_${cat.id}`;
+
+    if (pct >= 1) {
+      if (!notifShownToday(tag + '_over')) {
+        await pushNotif(
+          `🚨 ${cat.e} ${cat.n}: лимит превышен`,
+          `Потрачено ${fmts(spent)} — сверх на ${fmts(spent - limit)}. Зафиксировано, теперь видно.`,
+          tag + '_over', true
+        );
+      }
+    } else if (pct >= 0.85) {
+      if (!notifShownToday(tag + '_near')) {
+        await pushNotif(
+          `⚠️ ${cat.e} ${cat.n}: ${Math.round(pct*100)}% бюджета`,
+          `Потрачено ${fmts(spent)} из ${fmts(limit)}. Осталось ${fmts(limit-spent)}.`,
+          tag + '_near'
+        );
+      }
+    }
+  }
+}
+
+// ── Master check: run all notification checks ─────
+async function runNotificationChecks() {
+  if (Notification.permission !== 'granted') return;
+  const m = monthTxs();
+  await checkPaymentReminders();
+  await checkEntryReminder();
+  await checkBudgetLimits(m);
+}
+
+// ── Called after each new transaction save ────────
+async function checkLimitAfterSave() {
+  if (Notification.permission !== 'granted') return;
+  const m = monthTxs();
+  // Small delay to let Firestore snapshot arrive
+  setTimeout(() => checkBudgetLimits(m), 1200);
+}
+
+// ── Notification permission UI ────────────────────
+window.requestNotifPermission = async () => {
+  if (!('Notification' in window)) {
+    toast('Уведомления не поддерживаются браузером');
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  updateNotifSettingsLabel();
+  if (perm === 'granted') {
+    toast('Уведомления включены ✓');
+    await runNotificationChecks();
+  } else {
+    toast('Уведомления отклонены в настройках браузера');
+  }
+};
+
+function updateNotifSettingsLabel() {
+  const sub = document.getElementById('notif-set-sub');
+  if (!sub) return;
+  if (!('Notification' in window)) { sub.textContent = 'Не поддерживается'; return; }
+  const map = { granted:'Включены ✓', denied:'Заблокированы в браузере', default:'Не настроены' };
+  sub.textContent = map[Notification.permission] || 'Не настроены';
+}
 
 </script>
 </body>
