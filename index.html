@@ -8,6 +8,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Бюджет">
+<link rel="manifest" href="/budget/manifest.json">
+<link rel="icon" href="/budget/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/budget/icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -27,6 +30,11 @@
   --shadow:0 2px 16px rgba(79,70,229,.10);
 }
 
+/* ── COLOR THEMES ───────────────────────────────── */
+[data-color="forest"]  { --primary:#16A34A; --primary-d:#15803D; --primary-l:#DCFCE7; --shadow:0 2px 16px rgba(22,163,74,.12); }
+[data-color="ocean"]   { --primary:#0891B2; --primary-d:#0E7490; --primary-l:#CFFAFE; --shadow:0 2px 16px rgba(8,145,178,.12); }
+[data-color="sunset"]  { --primary:#EA580C; --primary-d:#C2410C; --primary-l:#FFF7ED; --shadow:0 2px 16px rgba(234,88,12,.12); }
+[data-color="mono"]    { --primary:#475569; --primary-d:#334155; --primary-l:#F1F5F9; --shadow:0 2px 16px rgba(71,85,105,.10); }
 /* ── DARK THEME ──────────────────────────────────── */
 [data-theme="dark"] {
   --bg:#0F172A; --surface:#1E293B; --border:#334155;
@@ -453,6 +461,19 @@ input,select{font-family:inherit}
 .ach-badge{flex-shrink:0;padding:7px 12px;background:var(--violet-l);border-radius:12px;font-size:12px;font-weight:700;color:var(--violet);white-space:nowrap;border:1.5px solid transparent}
 .ach-badge.locked{background:var(--bg);color:var(--t3);border-color:var(--border)}
 
+/* STYLE PICKER (3 icon styles) */
+.style-picker{display:flex;gap:8px;margin:8px 0 4px}
+.style-pick-btn{flex:1;padding:10px 6px;border:2px solid var(--border);border-radius:12px;background:var(--bg);cursor:pointer;transition:all .2s;text-align:center}
+.style-pick-btn.active{border-color:var(--primary);background:var(--primary-l)}
+.style-pick-preview{display:flex;gap:4px;justify-content:center;margin-bottom:5px}
+.style-pick-name{font-size:10px;font-weight:700;color:var(--t2)}
+.style-pick-btn.active .style-pick-name{color:var(--primary)}
+
+/* COLOR THEME PICKER */
+.theme-row{display:flex;gap:12px;padding:14px 0 4px;flex-wrap:wrap}
+.theme-dot{width:38px;height:38px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s,border-color .15s;display:flex;align-items:center;justify-content:center;font-size:14px}
+.theme-dot.active{border-color:var(--t1);transform:scale(1.15)}
+
 /* DARK MODE extras */
 [data-theme="dark"] #pin-screen{background:linear-gradient(145deg,#1e1b4b,#312E81)}
 [data-theme="dark"] .acc-bal-row{border-color:var(--border)}
@@ -645,6 +666,17 @@ input,select{font-family:inherit}
         <input class="amt-range-input" id="amt-min" type="number" placeholder="Сумма от ₽" inputmode="decimal" oninput="renderHistory()">
         <input class="amt-range-input" id="amt-max" type="number" placeholder="до ₽" inputmode="decimal" oninput="renderHistory()">
       </div>
+      <div class="filter-chips" id="period-filter-chips">
+        <button class="chip" onclick="setHistoryPeriod('week',this)">Неделя</button>
+        <button class="chip active" onclick="setHistoryPeriod('month',this)">Месяц</button>
+        <button class="chip" onclick="setHistoryPeriod('3months',this)">3 месяца</button>
+        <button class="chip" onclick="setHistoryPeriod('all',this)">Всё время</button>
+        <button class="chip" onclick="setHistoryPeriod('custom',this)">📅 Период</button>
+      </div>
+      <div id="history-custom-range" style="display:none;gap:8px;margin-bottom:10px" class="amt-range-row">
+        <input type="date" id="hist-from" class="amt-range-input" oninput="renderHistory()">
+        <input type="date" id="hist-to"   class="amt-range-input" oninput="renderHistory()">
+      </div>
       <div class="filter-chips" id="type-filter-chips">
         <button class="chip active" onclick="setFilter('all',this)">Все</button>
         <button class="chip" onclick="setFilter('exp',this)">Расходы</button>
@@ -711,6 +743,41 @@ input,select{font-family:inherit}
         <div class="set-item" onclick="toggleDark()">
           <div class="set-item-l"><div class="set-ico">🌙</div><div><div class="set-nm" id="dark-toggle-nm">Тёмная тема</div><div class="set-sub" id="dark-toggle-sub">Выключена</div></div></div>
           <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
+        </div>
+        <div style="padding:2px 0 10px">
+          <div style="font-size:12px;color:var(--t2);margin-bottom:6px">Стиль иконок категорий</div>
+          <div class="style-picker">
+            <button class="style-pick-btn" id="sp-neutral" onclick="setAppStyle('neutral',this)">
+              <div class="style-pick-preview"><span style="font-size:17px">🛒</span><span style="font-size:17px">🚗</span><span style="font-size:17px">💊</span></div>
+              <div class="style-pick-name">Нейтральный</div>
+            </button>
+            <button class="style-pick-btn" id="sp-bright" onclick="setAppStyle('bright',this)">
+              <div class="style-pick-preview">
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#16A34A;font-size:14px">🛒</span>
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#3B82F6;font-size:14px">🚗</span>
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#DC2626;font-size:14px">💊</span>
+              </div>
+              <div class="style-pick-name">Яркий</div>
+            </button>
+            <button class="style-pick-btn" id="sp-pastel" onclick="setAppStyle('pastel',this)">
+              <div class="style-pick-preview">
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;background:rgba(22,163,74,0.15);font-size:14px">🛒</span>
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;background:rgba(59,130,246,0.15);font-size:14px">🚗</span>
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;background:rgba(220,38,38,0.15);font-size:14px">💊</span>
+              </div>
+              <div class="style-pick-name">Пастель</div>
+            </button>
+          </div>
+        </div>
+        <div style="padding:2px 0 10px">
+          <div style="font-size:12px;color:var(--t2);margin-bottom:4px">Цвет акцента</div>
+          <div class="theme-row" id="theme-picker">
+            <div class="theme-dot active" data-color="indigo" style="background:#6366F1" onclick="setColorTheme('indigo',this)" title="Индиго"></div>
+            <div class="theme-dot" data-color="forest"  style="background:#16A34A" onclick="setColorTheme('forest',this)"  title="Зелёный"></div>
+            <div class="theme-dot" data-color="ocean"   style="background:#0891B2" onclick="setColorTheme('ocean',this)"   title="Морской"></div>
+            <div class="theme-dot" data-color="sunset"  style="background:#EA580C" onclick="setColorTheme('sunset',this)"  title="Оранжевый"></div>
+            <div class="theme-dot" data-color="mono"    style="background:#475569" onclick="setColorTheme('mono',this)"    title="Серый"></div>
+          </div>
         </div>
       </div>
 
@@ -998,6 +1065,9 @@ const CAT_EXP = [
   {id:'beauty',    e:'💄', n:'Косметика'},
   {id:'clothes',   e:'👕', n:'Одежда'},
   {id:'office',    e:'🏢', n:'Контора'},
+  {id:'telecom',   e:'📡', n:'Связь/Интернет'},
+  {id:'growth',    e:'📚', n:'Развитие'},
+  {id:'loan_out',  e:'🤲', n:'Отдали в долг'},
   {id:'help',      e:'🤝', n:'Помощь'},
   {id:'cash',      e:'💵', n:'Наличные'},
   {id:'debt_exp',  e:'💸', n:'Возврат долга'},
@@ -1018,10 +1088,39 @@ const ALL_CATS = [...CAT_EXP, ...CAT_INC, ...CAT_INNER, ...CAT_SAVINGS];
 
 function catById(id) { return ALL_CATS.find(c=>c.id===id) || customCategories.find(c=>c.id===id) || {e:'📋', n:'Прочее'}; }
 
+/* ── Category color map (used by Яркий + Пастель themes) ── */
+const CAT_COLORS = {
+  mortgage:'#6366F1', housing:'#0891B2', food:'#16A34A',
+  cafe:'#EA580C',     transport:'#3B82F6', mp:'#7C3AED',
+  health:'#DC2626',   kids:'#EC4899',      beauty:'#DB2777',
+  clothes:'#0D9488',  office:'#475569',    telecom:'#0284C7',
+  growth:'#D97706',   loan_out:'#64748B',  help:'#059669',
+  cash:'#6B7280',     debt_exp:'#EF4444',  other_e:'#94A3B8',
+  salary:'#16A34A',   social:'#2563EB',    maternity:'#EC4899',
+  family:'#F59E0B',   return:'#10B981',    debt_inc:'#059669',
+  other_i:'#94A3B8',  transfer:'#6366F1',  piggy:'#F59E0B',
+};
+
+function _hexToRgba(hex, a) {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+/* Returns inline style string for an icon element based on current appStyle */
+function catIcoStyle(catId, txType) {
+  const fallback = txType === 'inc' ? '#16A34A' : '#DC2626';
+  const color = CAT_COLORS[catId] || fallback;
+  if (appStyle === 'bright')  return `background:${color};border-radius:50%`;
+  if (appStyle === 'pastel')  return `background:${_hexToRgba(color,0.14)};border-radius:12px`;
+  return ''; // neutral: CSS class handles it
+}
+
 /* ── STATE ───────────────────────────────────────── */
 let me = null, familyId = null, txs = [], unsub = null, settingsUnsub = null;
 let curType = 'exp', selCat = 'food', editId = null, selAccount = 'card_a';
 let filterType = 'all', filterAccount = 'all';
+let historyPeriod = 'month';
+let appStyle = localStorage.getItem('appStyle') || 'neutral'; // neutral|bright|pastel // week|month|3months|all|custom
 let curMonth = new Date(); curMonth.setDate(1); curMonth.setHours(0,0,0,0);
 let pieInst = null, barInst = null, lineInst = null, weekdayInst = null;
 let budgets = {};
@@ -1049,6 +1148,37 @@ window.toggleDark = () => {
   localStorage.setItem('theme', next);
   updateDarkToggleUI(next);
 };
+
+window.setAppStyle = (style, btn) => {
+  appStyle = style;
+  localStorage.setItem('appStyle', style);
+  document.querySelectorAll('.style-pick-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderAll(); // re-render icons everywhere
+};
+
+// Sync style picker button state after DOM is ready
+function initStylePicker() {
+  const btn = document.getElementById('sp-' + appStyle);
+  if (btn) { document.querySelectorAll('.style-pick-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+}
+
+window.setColorTheme = (color, btn) => {
+  document.documentElement.setAttribute('data-color', color === 'indigo' ? '' : color);
+  localStorage.setItem('colorTheme', color);
+  document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+};
+
+(function initColorTheme() {
+  const color = localStorage.getItem('colorTheme') || 'indigo';
+  if (color !== 'indigo') document.documentElement.setAttribute('data-color', color);
+  // Sync picker dots after DOM ready
+  document.addEventListener('DOMContentLoaded', () => {
+    const dot = document.querySelector(`.theme-dot[data-color="${color}"]`);
+    if (dot) { document.querySelectorAll('.theme-dot').forEach(d=>d.classList.remove('active')); dot.classList.add('active'); }
+  });
+})();
 
 function updateDarkToggleUI(theme) {
   const sub = document.getElementById('dark-toggle-sub');
@@ -1273,6 +1403,7 @@ function subscribeSettings() {
     }
     renderAll();
     updateNotifSettingsLabel();
+    initStylePicker();
     // Run notification checks once per session after settings load
     if (!window._notifChecked) {
       window._notifChecked = true;
@@ -1358,8 +1489,9 @@ function txHTML(t) {
   if (t.account === 'card_d') accBadge = '<span class="acc-badge">Карта Д</span>';
   else if (t.account === 'cash') accBadge = '<span class="cash-badge">наличные</span>';
   else if (t.payMethod === 'cash_pay') accBadge = '<span class="cash-badge">наличные</span>';
+  const icoS = catIcoStyle(t.category, t.type);
   return `<div class="tx-row" data-id="${t.id}" onclick="openEdit('${t.id}')">
-    <div class="tx-ico ${t.type}">${cat.e}</div>
+    <div class="tx-ico ${icoS ? '' : t.type}" style="${icoS}">${cat.e}</div>
     <div class="tx-body">
       <div class="tx-cat">${t.description||cat.n}${accBadge}</div>
       <div class="tx-meta">${cat.n} · ${ds}${by}</div>
@@ -1377,13 +1509,50 @@ function renderRecent(m) {
   initSwipe(el);
 }
 
+window.setHistoryPeriod = (period, btn) => {
+  historyPeriod = period;
+  document.querySelectorAll('#period-filter-chips .chip').forEach(c=>c.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const cr = document.getElementById('history-custom-range');
+  if (cr) cr.style.display = period === 'custom' ? 'flex' : 'none';
+  renderHistory();
+};
+
+function getHistoryRange() {
+  const now = new Date(); now.setHours(23,59,59,999);
+  const start = new Date();
+  if (historyPeriod === 'week') {
+    start.setDate(start.getDate() - 6); start.setHours(0,0,0,0);
+    return [start, now];
+  }
+  if (historyPeriod === 'month') {
+    start.setDate(1); start.setHours(0,0,0,0);
+    return [start, now];
+  }
+  if (historyPeriod === '3months') {
+    start.setMonth(start.getMonth()-3); start.setDate(1); start.setHours(0,0,0,0);
+    return [start, now];
+  }
+  if (historyPeriod === 'custom') {
+    const f = document.getElementById('hist-from')?.value;
+    const t = document.getElementById('hist-to')?.value;
+    const from = f ? new Date(f+'T00:00:00') : new Date(0);
+    const to   = t ? new Date(t+'T23:59:59') : now;
+    return [from, to];
+  }
+  return [new Date(0), now]; // all
+}
+
 /* ── HISTORY ─────────────────────────────────────── */
 function renderHistory() {
   const el = document.getElementById('history-list');
   const q  = (document.getElementById('search-q')?.value||'').toLowerCase();
   const amtMin = parseFloat(document.getElementById('amt-min')?.value)||0;
   const amtMax = parseFloat(document.getElementById('amt-max')?.value)||Infinity;
+  const [rangeFrom, rangeTo] = getHistoryRange();
   const filtered = txs.filter(t=>{
+    const d = toDate(t.date);
+    if (d < rangeFrom || d > rangeTo) return false;
     if (filterType!=='all' && t.type!==filterType) return false;
     if (filterAccount!=='all') {
       const acc = t.account || (t.payMethod==='cash_pay'?'cash':'card_a');
@@ -1905,7 +2074,14 @@ function updateAccountUI() {
 function renderCatGrid() {
   let cats = curType==='inc' ? CAT_INC : curType==='inner' ? CAT_INNER : curType==='savings' ? CAT_SAVINGS : CAT_EXP;
   if (curType === 'exp' && customCategories.length) cats = [...cats, ...customCategories];
-  document.getElementById('cat-grid').innerHTML = cats.map(c=>`<button class="cat-btn${c.id===selCat?' sel':''}" onclick="pickCat('${c.id}')"><span class="cat-emoji">${c.e}</span><span class="cat-nm">${c.n}</span></button>`).join('');
+  const txT = curType === 'inc' ? 'inc' : 'exp';
+  document.getElementById('cat-grid').innerHTML = cats.map(c => {
+    const s = catIcoStyle(c.id, txT);
+    const emojiWrap = s
+      ? `<span class="cat-emoji" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;font-size:18px;${s}">${c.e}</span>`
+      : `<span class="cat-emoji">${c.e}</span>`;
+    return `<button class="cat-btn${c.id===selCat?' sel':''}" onclick="pickCat('${c.id}')">${emojiWrap}<span class="cat-nm">${c.n}</span></button>`;
+  }).join('');
 }
 
 /* ── TEMPLATES (last 5 of current type) ──────────── */
@@ -2880,12 +3056,35 @@ async function checkBudgetLimits(m) {
 }
 
 // ── Master check: run all notification checks ─────
+// Payment reminders on the actual day → show immediately (urgent)
+// Entry reminder + budget limits → schedule for 22:00
 async function runNotificationChecks() {
   if (Notification.permission !== 'granted') return;
   const m = monthTxs();
+
+  // Urgent: payment due TODAY — show immediately
   await checkPaymentReminders();
-  await checkEntryReminder();
-  await checkBudgetLimits(m);
+
+  // Non-urgent: schedule for 22:00
+  const now = new Date();
+  const target2200 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 22, 0, 0);
+  const msUntil = target2200 - now;
+
+  const scheduleKey = 'notif_22_scheduled_' + now.toDateString();
+  if (!localStorage.getItem(scheduleKey)) {
+    localStorage.setItem(scheduleKey, '1');
+    if (msUntil > 0) {
+      // Schedule for 22:00 today
+      setTimeout(async () => {
+        await checkEntryReminder();
+        await checkBudgetLimits(monthTxs());
+      }, msUntil);
+    } else {
+      // Already past 22:00 — check now if not yet done today
+      await checkEntryReminder();
+      await checkBudgetLimits(m);
+    }
+  }
 }
 
 // ── Called after each new transaction save ────────
