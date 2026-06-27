@@ -1,0 +1,19 @@
+{
+  "name": "Семейный бюджет",
+  "short_name": "Бюджет",
+  "description": "Учёт семейных доходов и расходов",
+  "start_url": "/budget/",
+  "scope": "/budget/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#6366F1",
+  "theme_color": "#6366F1",
+  "icons": [
+    {
+      "src": "/budget/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
