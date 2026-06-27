@@ -10,7 +10,7 @@
   "theme_color": "#007AFF",
   "icons": [
     {
-      "src": "/budget/icon.svg",
+      "src": "/budget/icon.svg?v=5",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
