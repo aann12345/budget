@@ -1,71 +1,104 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0A1628"/>
-      <stop offset="60%" stop-color="#0D2548"/>
+      <stop offset="0%" stop-color="#061628"/>
+      <stop offset="55%" stop-color="#0A2040"/>
       <stop offset="100%" stop-color="#062038"/>
     </linearGradient>
-    <linearGradient id="card-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="chartFill2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="rgba(0,122,255,0.22)"/>
+      <stop offset="100%" stop-color="rgba(0,122,255,0.00)"/>
+    </linearGradient>
+    <linearGradient id="chartFill" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="rgba(52,199,89,0.22)"/>
+      <stop offset="100%" stop-color="rgba(52,199,89,0.00)"/>
+    </linearGradient>
+    <linearGradient id="walletGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="rgba(255,255,255,0.18)"/>
       <stop offset="100%" stop-color="rgba(255,255,255,0.07)"/>
     </linearGradient>
-    <linearGradient id="bar" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#34C759"/>
-      <stop offset="100%" stop-color="#30D158"/>
-    </linearGradient>
-    <filter id="shadow">
-      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="rgba(0,0,0,0.4)"/>
+    <filter id="sh">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="rgba(0,0,0,0.5)"/>
     </filter>
-    <filter id="glow">
-      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="rgba(52,199,89,0.6)"/>
+    <filter id="csh">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="rgba(255,160,0,0.4)"/>
     </filter>
+    <clipPath id="clip">
+      <rect width="512" height="512" rx="110"/>
+    </clipPath>
   </defs>
 
-  <!-- Rounded background -->
-  <rect width="512" height="512" rx="110" fill="url(#bg)"/>
+  <g clip-path="url(#clip)">
+    <!-- Background -->
+    <rect width="512" height="512" fill="url(#bg)"/>
+    <circle cx="120" cy="140" r="180" fill="rgba(0,122,255,0.12)"/>
+    <circle cx="390" cy="370" r="150" fill="rgba(52,199,89,0.07)"/>
 
-  <!-- Blue glow top-left -->
-  <circle cx="100" cy="130" r="160" fill="rgba(0,122,255,0.10)"/>
-  <!-- Green glow bottom-right -->
-  <circle cx="400" cy="370" r="140" fill="rgba(52,199,89,0.07)"/>
+    <!-- Chart area fill blue -->
+    <path d="M0,320 L60,290 L120,300 L180,260 L240,240 L300,210 L360,190 L420,160 L480,130 L512,120 L512,512 L0,512 Z"
+          fill="url(#chartFill2)" opacity="0.8"/>
 
-  <!-- Credit card shape -->
-  <rect x="80" y="148" width="352" height="216" rx="22" fill="url(#card-grad)" filter="url(#shadow)"/>
-  <rect x="80" y="148" width="352" height="216" rx="22" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="1"/>
+    <!-- Chart area fill green -->
+    <path d="M0,400 L80,380 L150,370 L220,340 L290,310 L360,290 L430,260 L512,240 L512,512 L0,512 Z"
+          fill="url(#chartFill)" opacity="0.9"/>
 
-  <!-- Card top stripe -->
-  <rect x="80" y="148" width="352" height="62" rx="22" fill="rgba(255,255,255,0.07)"/>
-  <rect x="80" y="188" width="352" height="22" fill="rgba(255,255,255,0.07)"/>
+    <!-- Grid lines -->
+    <line x1="0" y1="200" x2="512" y2="200" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+    <line x1="0" y1="300" x2="512" y2="300" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+    <line x1="0" y1="400" x2="512" y2="400" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
 
-  <!-- Chip icon (rounded square) -->
-  <rect x="108" y="168" width="38" height="30" rx="7" fill="rgba(255,214,10,0.75)"/>
-  <line x1="118" y1="168" x2="118" y2="198" stroke="rgba(0,0,0,0.25)" stroke-width="1"/>
-  <line x1="128" y1="168" x2="128" y2="198" stroke="rgba(0,0,0,0.25)" stroke-width="1"/>
-  <line x1="138" y1="168" x2="138" y2="198" stroke="rgba(0,0,0,0.25)" stroke-width="1"/>
-  <line x1="108" y1="183" x2="146" y2="183" stroke="rgba(0,0,0,0.25)" stroke-width="1"/>
+    <!-- Chart line blue -->
+    <polyline points="0,320 60,290 120,300 180,260 240,240 300,210 360,190 420,160 480,130 512,120"
+      fill="none" stroke="rgba(0,122,255,0.75)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
 
-  <!-- ₽ symbol -->
-  <text x="108" y="255"
-        font-family="-apple-system,SF Pro Display,Helvetica Neue,Arial,sans-serif"
-        font-size="28"
-        font-weight="600"
-        fill="rgba(255,255,255,0.5)">БАЛАНС</text>
+    <!-- Chart line green -->
+    <polyline points="0,400 80,380 150,370 220,340 290,310 360,290 430,260 512,240"
+      fill="none" stroke="rgba(52,199,89,0.70)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
 
-  <!-- Amount -->
-  <text x="108" y="312"
-        font-family="-apple-system,SF Pro Display,Helvetica Neue,Arial,sans-serif"
-        font-size="52"
-        font-weight="700"
-        fill="white"
-        letter-spacing="-2">₽ 85 400</text>
+    <!-- Dot blue peak -->
+    <circle cx="480" cy="130" r="6" fill="#007AFF"/>
+    <circle cx="480" cy="130" r="11" fill="rgba(0,122,255,0.28)"/>
 
-  <!-- Progress bar bg -->
-  <rect x="108" y="338" width="296" height="8" rx="4" fill="rgba(255,255,255,0.12)"/>
-  <!-- Progress bar fill -->
-  <rect x="108" y="338" width="178" height="8" rx="4" fill="url(#bar)" filter="url(#glow)"/>
+    <!-- Dot green peak -->
+    <circle cx="430" cy="260" r="6" fill="#34C759"/>
+    <circle cx="430" cy="260" r="11" fill="rgba(52,199,89,0.25)"/>
 
-  <!-- Three dots bottom-right of card -->
-  <circle cx="354" cy="174" r="8" fill="rgba(255,59,48,0.85)"/>
-  <circle cx="374" cy="174" r="8" fill="rgba(255,149,0,0.85)"/>
-  <circle cx="394" cy="174" r="8" fill="rgba(52,199,89,0.85)"/>
+    <!-- Wallet card -->
+    <rect x="90" y="118" width="332" height="210" rx="28" fill="url(#walletGrad)" filter="url(#sh)"/>
+    <rect x="90" y="118" width="332" height="210" rx="28" fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="1.5"/>
+
+    <!-- Wallet header -->
+    <rect x="90" y="118" width="332" height="60" rx="28" fill="rgba(255,255,255,0.08)"/>
+    <rect x="90" y="152" width="332" height="26" fill="rgba(255,255,255,0.06)"/>
+
+    <!-- Pocket -->
+    <rect x="306" y="170" width="116" height="90" fill="rgba(0,122,255,0.22)"/>
+    <rect x="306" y="170" width="116" height="90" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+
+    <!-- Coin in pocket -->
+    <circle cx="364" cy="215" r="25" fill="rgba(255,214,10,0.88)" filter="url(#csh)"/>
+    <text x="364" y="225" text-anchor="middle"
+          font-family="-apple-system,Helvetica Neue,Arial,sans-serif"
+          font-size="26" font-weight="700" fill="rgba(120,70,0,0.85)">₽</text>
+
+    <!-- Card lines -->
+    <rect x="114" y="192" width="164" height="10" rx="5" fill="rgba(255,255,255,0.40)"/>
+    <rect x="114" y="214" width="110" height="8" rx="4" fill="rgba(255,255,255,0.20)"/>
+    <rect x="114" y="234" width="132" height="8" rx="4" fill="rgba(255,255,255,0.15)"/>
+    <rect x="114" y="274" width="84" height="32" rx="9" fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+
+    <!-- Text БЮДЖЕТ -->
+    <text x="256" y="388"
+          text-anchor="middle"
+          font-family="-apple-system,Helvetica Neue,Arial,sans-serif"
+          font-size="82" font-weight="700"
+          fill="white" letter-spacing="-2">БЮДЖЕТ</text>
+
+    <!-- Text СЕМЬИ -->
+    <text x="256" y="452"
+          text-anchor="middle"
+          font-family="-apple-system,Helvetica Neue,Arial,sans-serif"
+          font-size="46" font-weight="400"
+          fill="rgba(255,255,255,0.55)" letter-spacing="6">СЕМЬИ</text>
+  </g>
 </svg>
