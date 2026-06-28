@@ -1032,10 +1032,11 @@ input,select{font-family:inherit}
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">💳 Начальный баланс</div>
-    <p style="text-align:center;font-size:13px;color:var(--t2);margin-bottom:20px;line-height:1.6">Укажите начальный баланс счетов. Реальный баланс = начальный ± операции</p>
-    <div class="f-row"><label class="f-label">💳 Карта А (начальный баланс ₽)</label><input id="bal-card-a" type="number" class="f-input" placeholder="0" inputmode="decimal"></div>
-    <div class="f-row"><label class="f-label">💳 Карта Д (начальный баланс ₽)</label><input id="bal-card-d" type="number" class="f-input" placeholder="0" inputmode="decimal"></div>
-    <div class="f-row"><label class="f-label">💵 Наличные (начальный баланс ₽)</label><input id="bal-cash" type="number" class="f-input" placeholder="0" inputmode="decimal"></div>
+    <p style="text-align:center;font-size:13px;color:var(--t2);margin-bottom:20px;line-height:1.6">Укажите дату и баланс на эту дату. Учитываются только операции начиная с указанной даты.</p>
+    <div class="f-row"><label class="f-label">📅 Дата начала расчётов</label><input id="bal-start-date" type="date" class="f-input"></div>
+    <div class="f-row"><label class="f-label">💳 Карта А (баланс на дату начала ₽)</label><input id="bal-card-a" type="number" class="f-input" placeholder="0" inputmode="decimal"></div>
+    <div class="f-row"><label class="f-label">💳 Карта Д (баланс на дату начала ₽)</label><input id="bal-card-d" type="number" class="f-input" placeholder="0" inputmode="decimal"></div>
+    <div class="f-row"><label class="f-label">💵 Наличные (баланс на дату начала ₽)</label><input id="bal-cash" type="number" class="f-input" placeholder="0" inputmode="decimal"></div>
     <button class="btn-save" onclick="saveAccBalances()">Сохранить</button>
     <button class="btn-cancel" onclick="closeOverlay('acc-bal-modal')">Отмена</button>
   </div>
@@ -1351,7 +1352,7 @@ let savingsGoal = {name:'', target:0, deadline:''};
 let customCategories = []; // [{id, e, n}]
 let analyticsPeriod = 'month';
 // New features state
-let accountBalances = {card_a: 0, card_d: 0, cash: 0};
+let accountBalances = {card_a: 0, card_d: 0, cash: 0, startDate: ''};
 let paydayDays = [];        // [15, 30] — два дня зарплаты
 let monthlySalary = 0;      // общая сумма зарплаты в месяц
 let recurringList = []; // [{id, name, amount, day, category, account}]
@@ -1622,7 +1623,7 @@ function subscribeSettings() {
       budgets          = d.budgets          || {};
       savingsGoal      = d.savingsGoal      || {name:'',target:0,deadline:''};
       customCategories = d.customCategories || [];
-      accountBalances  = d.accountBalances  || {card_a:0,card_d:0,cash:0};
+      accountBalances  = d.accountBalances  || {card_a:0,card_d:0,cash:0,startDate:''};
       // backward compat: paydayDay (old) → paydayDays (new)
       paydayDays       = d.paydayDays || (d.paydayDay ? [d.paydayDay] : []);
       monthlySalary    = d.monthlySalary    || 0;
@@ -1632,7 +1633,7 @@ function subscribeSettings() {
       savingsGoals     = d.savingsGoals     || [];
     } else {
       budgets = {}; savingsGoal = {name:'',target:0,deadline:''}; customCategories = [];
-      accountBalances = {card_a:0,card_d:0,cash:0}; paydayDays = []; monthlySalary = 0;
+      accountBalances = {card_a:0,card_d:0,cash:0,startDate:''}; paydayDays = []; monthlySalary = 0;
       recurringList = []; monthlyPlan = []; debtList = []; savingsGoals = [];
     }
     renderAll();
@@ -2662,7 +2663,9 @@ window.removePinSettings = () => {
    ══════════════════════════════════════════════════ */
 function calcRealBalance(acc) {
   const start = accountBalances[acc] || 0;
+  const startDate = accountBalances.startDate || '';
   const net = txs.reduce((s,t) => {
+    if (startDate && t.date < startDate) return s;
     const tAcc = t.account || (t.payMethod==='cash_pay'?'cash':'card_a');
     if (tAcc !== acc) return s;
     if (t.type==='inc') return s + t.amount;
@@ -2694,6 +2697,7 @@ function renderAccBalances() {
 }
 
 window.openAccBalSettings = () => {
+  document.getElementById('bal-start-date').value = accountBalances.startDate||'';
   document.getElementById('bal-card-a').value = accountBalances.card_a||'';
   document.getElementById('bal-card-d').value = accountBalances.card_d||'';
   document.getElementById('bal-cash').value   = accountBalances.cash||'';
@@ -2703,12 +2707,15 @@ window.openAccBalSettings = () => {
 window.saveAccBalances = async () => {
   if (!familyId) { toast('Нет подключения'); return; }
   const ab = {
+    startDate: document.getElementById('bal-start-date').value||'',
     card_a: parseFloat(document.getElementById('bal-card-a').value)||0,
     card_d: parseFloat(document.getElementById('bal-card-d').value)||0,
     cash:   parseFloat(document.getElementById('bal-cash').value)||0,
   };
+  accountBalances = ab;
   try {
     await setDoc(doc(db,'families',familyId,'settings','config'),{accountBalances:ab},{merge:true});
+    renderAccBalances();
     toast('Балансы сохранены ✓');
     closeOverlay('acc-bal-modal');
   } catch(e) { toast('Ошибка: '+e.message); }
