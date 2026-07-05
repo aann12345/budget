@@ -814,28 +814,17 @@ input,select{font-family:inherit}
   <div id="view-settings" class="view">
     <div class="content" style="margin-top:0;padding-top:14px">
 
+      <!-- 1. ФИНАНСЫ -->
       <div class="set-section">
-        <div class="set-section-title">Безопасность</div>
-        <div class="set-item" onclick="openPinSettings()">
-          <div class="set-item-l"><div class="set-ico">🔐</div><div><div class="set-nm">PIN-код</div><div class="set-sub" id="pin-set-sub">Не установлен</div></div></div>
-          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
-        </div>
-      </div>
-
-      <div class="set-section">
-        <div class="set-section-title">Счета и зарплата</div>
+        <div class="set-section-title">Финансы</div>
         <div class="set-item" onclick="openAccBalSettings()">
-          <div class="set-item-l"><div class="set-ico">💳</div><div><div class="set-nm">Начальный баланс счетов</div><div class="set-sub">Карта А, Карта Д, Наличные</div></div></div>
+          <div class="set-item-l"><div class="set-ico">💳</div><div><div class="set-nm">Начальный баланс</div><div class="set-sub">Карта А, Карта Д, Наличные</div></div></div>
           <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
         </div>
         <div class="set-item" onclick="openPaydaySettings()">
-          <div class="set-item-l"><div class="set-ico">📅</div><div><div class="set-nm">День зарплаты</div><div class="set-sub" id="payday-set-sub">Не указан</div></div></div>
+          <div class="set-item-l"><div class="set-ico">💰</div><div><div class="set-nm">День зарплаты</div><div class="set-sub" id="payday-set-sub">Не указан</div></div></div>
           <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
         </div>
-      </div>
-
-      <div class="set-section">
-        <div class="set-section-title">Регулярные платежи</div>
         <div class="set-item" onclick="openRecurringSettings()">
           <div class="set-item-l"><div class="set-ico">🔄</div><div><div class="set-nm">Регулярные платежи</div><div class="set-sub" id="recurring-set-sub">Не добавлены</div></div></div>
           <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
@@ -844,16 +833,39 @@ input,select{font-family:inherit}
           <div class="set-item-l"><div class="set-ico">📋</div><div><div class="set-nm">Месячный план</div><div class="set-sub" id="plan-set-sub">Не настроен</div></div></div>
           <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
         </div>
-      </div>
-
-      <div class="set-section">
-        <div class="set-section-title">Уведомления</div>
-        <div class="set-item" onclick="requestNotifPermission()">
-          <div class="set-item-l"><div class="set-ico">🔔</div><div><div class="set-nm">Уведомления</div><div class="set-sub" id="notif-set-sub">Не настроены</div></div></div>
+        <div class="set-item" onclick="openBudgetSettings()">
+          <div class="set-item-l"><div class="set-ico">🎯</div><div><div class="set-nm">Лимиты бюджета</div><div class="set-sub" id="budget-set-sub">Не настроены</div></div></div>
           <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
         </div>
       </div>
 
+      <!-- 2. ЦЕЛИ И ДОЛГИ -->
+      <div class="set-section">
+        <div class="set-section-title">Цели и долги</div>
+        <div class="set-item" onclick="openSavingsSettings()">
+          <div class="set-item-l"><div class="set-ico">🐷</div><div><div class="set-nm">Копилка</div><div class="set-sub" id="savings-set-sub">Не настроена</div></div></div>
+          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
+        </div>
+        <div class="set-item" onclick="openSavingsGoalsModal()">
+          <div class="set-item-l"><div class="set-ico" style="background:var(--violet-l)">🏆</div><div><div class="set-nm">Несколько целей</div><div class="set-sub" id="goals-set-sub">Не настроены</div></div></div>
+          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
+        </div>
+        <div class="set-item" onclick="openDebtModal()">
+          <div class="set-item-l"><div class="set-ico" style="background:var(--amber-l)">📒</div><div><div class="set-nm">Долговая книга</div><div class="set-sub" id="debt-set-sub">Нет записей</div></div></div>
+          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
+        </div>
+      </div>
+
+      <!-- 3. КАТЕГОРИИ -->
+      <div class="set-section">
+        <div class="set-section-title">Категории</div>
+        <div class="set-item" onclick="openCustomCats()">
+          <div class="set-item-l"><div class="set-ico">🏷️</div><div><div class="set-nm">Мои категории</div><div class="set-sub" id="custom-cats-sub">Не добавлены</div></div></div>
+          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
+        </div>
+      </div>
+
+      <!-- 4. ВНЕШНИЙ ВИД -->
       <div class="set-section">
         <div class="set-section-title">Внешний вид</div>
         <div class="set-item" onclick="toggleDark()">
@@ -897,59 +909,57 @@ input,select{font-family:inherit}
         </div>
       </div>
 
+      <!-- 5. УВЕДОМЛЕНИЯ -->
       <div class="set-section">
-        <div class="set-section-title">Совместный доступ</div>
-        <div class="code-box">
-          <div class="code-box-lbl">Код семьи</div>
-          <div class="code-val" id="fam-code">…</div>
-          <div class="code-hint">Скопируйте и отправьте второму участнику.<br>Он вставит код в «Присоединиться».</div>
-          <button class="btn-p" style="padding:10px;font-size:14px" onclick="copyCode()">📋 Скопировать код</button>
+        <div class="set-section-title">Уведомления</div>
+        <div class="set-item" onclick="requestNotifPermission()">
+          <div class="set-item-l"><div class="set-ico">🔔</div><div><div class="set-nm">Уведомления</div><div class="set-sub" id="notif-set-sub">Не настроены</div></div></div>
+          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
         </div>
-        <div class="set-item" onclick="openJoin()">
-          <div class="set-item-l"><div class="set-ico">🔗</div><div><div class="set-nm">Присоединиться к семье</div><div class="set-sub">Ввести код другого участника</div></div></div>
+        <div class="set-item" onclick="testNotification()">
+          <div class="set-item-l"><div class="set-ico">🧪</div><div><div class="set-nm">Тест уведомления</div><div class="set-sub">Отправить пробное уведомление</div></div></div>
           <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
         </div>
       </div>
 
-      <div class="set-section">
-        <div class="set-section-title">Категории</div>
-        <div class="set-item" onclick="openCustomCats()">
-          <div class="set-item-l"><div class="set-ico">🏷️</div><div><div class="set-nm">Мои категории</div><div class="set-sub" id="custom-cats-sub">Не добавлены</div></div></div>
-          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
-        </div>
-      </div>
-
-      <div class="set-section">
-        <div class="set-section-title">Цели и бюджет</div>
-        <div class="set-item" onclick="openBudgetSettings()">
-          <div class="set-item-l"><div class="set-ico">🎯</div><div><div class="set-nm">Лимиты бюджета</div><div class="set-sub" id="budget-set-sub">Не настроены</div></div></div>
-          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
-        </div>
-        <div class="set-item" onclick="openSavingsSettings()">
-          <div class="set-item-l"><div class="set-ico">🐷</div><div><div class="set-nm">Копилка (одна цель)</div><div class="set-sub" id="savings-set-sub">Не настроена</div></div></div>
-          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
-        </div>
-        <div class="set-item" onclick="openSavingsGoalsModal()">
-          <div class="set-item-l"><div class="set-ico" style="background:var(--violet-l)">🎯</div><div><div class="set-nm">Несколько целей</div><div class="set-sub" id="goals-set-sub">Не настроены</div></div></div>
-          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
-        </div>
-        <div class="set-item" onclick="openDebtModal()">
-          <div class="set-item-l"><div class="set-ico" style="background:var(--amber-l)">📒</div><div><div class="set-nm">Долговая книга</div><div class="set-sub" id="debt-set-sub">Нет записей</div></div></div>
-          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
-        </div>
-      </div>
-
+      <!-- 6. ЭКСПОРТ -->
       <div class="set-section">
         <div class="set-section-title">Экспорт данных</div>
         <div class="set-item" onclick="exportAll()"><div class="set-item-l"><div class="set-ico">📊</div><div><div class="set-nm">Экспорт всех данных CSV</div><div class="set-sub">Excel, Google Sheets</div></div></div><span class="material-icons-round" style="color:var(--t3);font-size:20px">download</span></div>
         <div class="set-item" onclick="exportMonth()"><div class="set-item-l"><div class="set-ico">📅</div><div><div class="set-nm">Экспорт текущего месяца</div><div class="set-sub" id="exp-month-lbl">Июнь 2026</div></div></div><span class="material-icons-round" style="color:var(--t3);font-size:20px">download</span></div>
       </div>
 
+      <!-- 7. СОВМЕСТНЫЙ ДОСТУП -->
+      <div class="set-section">
+        <div class="set-section-title">Совместный доступ</div>
+        <div class="set-item" onclick="openJoin()">
+          <div class="set-item-l"><div class="set-ico">🔗</div><div><div class="set-nm">Присоединиться к семье</div><div class="set-sub">Ввести код другого участника</div></div></div>
+          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
+        </div>
+        <div class="code-box" style="margin-top:8px">
+          <div class="code-box-lbl">Код семьи</div>
+          <div class="code-val" id="fam-code">…</div>
+          <div class="code-hint">Скопируйте и отправьте второму участнику.<br>Он вставит код в «Присоединиться».</div>
+          <button class="btn-p" style="padding:10px;font-size:14px" onclick="copyCode()">📋 Скопировать код</button>
+        </div>
+      </div>
+
+      <!-- 8. БЕЗОПАСНОСТЬ -->
+      <div class="set-section">
+        <div class="set-section-title">Безопасность</div>
+        <div class="set-item" onclick="openPinSettings()">
+          <div class="set-item-l"><div class="set-ico">🔐</div><div><div class="set-nm">PIN-код</div><div class="set-sub" id="pin-set-sub">Не установлен</div></div></div>
+          <span class="material-icons-round" style="color:var(--t3);font-size:20px">chevron_right</span>
+        </div>
+      </div>
+
+      <!-- 9. АККАУНТ -->
       <div class="set-section">
         <div class="set-section-title">Аккаунт</div>
         <div class="set-item" style="cursor:default"><div class="set-item-l"><div class="set-ico">✉️</div><div><div class="set-nm" id="usr-email">—</div><div class="set-sub">Email аккаунта</div></div></div></div>
         <div class="set-item" onclick="doLogout()"><div class="set-item-l"><div class="set-ico" style="background:var(--red-l)">🚪</div><div class="set-nm" style="color:var(--red)">Выйти</div></div></div>
       </div>
+
     </div>
   </div>
 
@@ -3213,8 +3223,32 @@ async function pushNotif(title, body, tag, renotify = false) {
   if (sw?.active) {
     sw.active.postMessage({type:'NOTIFY', title, body, tag, renotify});
   } else {
-    new Notification(title, {body, tag, icon:'/budget/icon-192.png'});
+    new Notification(title, {body, tag, icon:'/budget/icon.svg'});
   }
+}
+
+// ── IndexedDB helpers (for background SW jobs) ────
+function openNotifIDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open('budget-notif', 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore('jobs', {keyPath:'id', autoIncrement:true});
+    req.onsuccess = e => res(e.target.result);
+    req.onerror   = e => rej(e);
+  });
+}
+
+async function writeNotifJob(title, body, tag, fireAt) {
+  try {
+    const db = await openNotifIDB();
+    const tx = db.transaction('jobs', 'readwrite');
+    const store = tx.objectStore('jobs');
+    // Remove existing job with same tag to avoid duplicates
+    const all = await new Promise(r => { const req = store.getAll(); req.onsuccess = ()=>r(req.result); req.onerror=()=>r([]); });
+    for (const job of all) {
+      if (job.tag === tag) store.delete(job.id);
+    }
+    store.add({title, body, tag, fireAt});
+  } catch(e) { /* silent */ }
 }
 
 // ── Guard: show each notification tag max once per day ──
@@ -3352,8 +3386,6 @@ async function checkBudgetLimits(m) {
 }
 
 // ── Master check: run all notification checks ─────
-// Payment reminders on the actual day → show immediately (urgent)
-// Entry reminder + budget limits → schedule for 22:00
 async function runNotificationChecks() {
   if (Notification.permission !== 'granted') return;
   const m = monthTxs();
@@ -3369,14 +3401,32 @@ async function runNotificationChecks() {
   const scheduleKey = 'notif_22_scheduled_' + now.toDateString();
   if (!localStorage.getItem(scheduleKey)) {
     localStorage.setItem(scheduleKey, '1');
+
     if (msUntil > 0) {
-      // Schedule for 22:00 today
+      // 1. Write job to IndexedDB → SW fires even when app is closed (Android PWA)
+      const lastTx = txs.length
+        ? txs.reduce((a,b) => (b.date > a.date ? b : a))
+        : null;
+      const daysSince = lastTx
+        ? Math.floor((Date.now() - toDate(lastTx.date).getTime()) / 864e5)
+        : 99;
+      if (daysSince >= 2) {
+        const title = daysSince >= 4
+          ? `📭 Бюджет ждёт — уже ${daysSince} дней без записей`
+          : daysSince === 3
+            ? '💸 3 дня без бюджета'
+            : '👀 Куда ушли деньги за эти дни?';
+        const body = 'Пара минут — и бюджет снова под контролем.';
+        await writeNotifJob(title, body, 'entry_reminder_bg', target2200.getTime());
+      }
+
+      // 2. setTimeout fallback for when app stays open
       setTimeout(async () => {
         await checkEntryReminder();
         await checkBudgetLimits(monthTxs());
       }, msUntil);
     } else {
-      // Already past 22:00 — check now if not yet done today
+      // Already past 22:00 — run checks immediately
       await checkEntryReminder();
       await checkBudgetLimits(m);
     }
@@ -3405,6 +3455,20 @@ window.requestNotifPermission = async () => {
   } else {
     toast('Уведомления отклонены в настройках браузера');
   }
+};
+
+window.testNotification = async () => {
+  if (Notification.permission !== 'granted') {
+    toast('Сначала включите уведомления в настройках');
+    return;
+  }
+  await pushNotif(
+    '✅ Уведомления работают!',
+    'Семейный бюджет будет напоминать о платежах и расходах.',
+    'test_' + Date.now(),
+    true
+  );
+  toast('Тестовое уведомление отправлено');
 };
 
 function updateNotifSettingsLabel() {
